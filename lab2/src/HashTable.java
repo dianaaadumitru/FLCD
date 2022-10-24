@@ -2,11 +2,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HashTable<T> {
-    private final int size;
+    private int size;
 
-    private final List<List<T>> items;
+    private List<List<T>> items;
 
-    private final double loadFactor = 0.75;
+    private final double loadFactor = 0.7;
 
     private int actualSize;
 
@@ -32,6 +32,10 @@ public class HashTable<T> {
             return getPosition(key);
         }
         items.get(listPos).add(key);
+        actualSize++;
+        if (actualSize > size * loadFactor) {
+            resize();
+        }
         return getPosition(key);
     }
 
@@ -54,6 +58,23 @@ public class HashTable<T> {
     public boolean removeItem(T key) {
         int listPos = hash(key);
         return items.get(listPos).remove(key);
+    }
+
+    private void resize() {
+        List<List<T>> oldItems = items;
+        size = size * 2;
+        size++;
+        items = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            items.add(new ArrayList<>());
+        }
+        actualSize = 0;
+        for (List<T> item: oldItems) {
+            for (T key: item) {
+                this.addToHT(key);
+            }
+        }
+
     }
 
     @Override

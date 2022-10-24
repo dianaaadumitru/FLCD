@@ -7,7 +7,13 @@ public class Main {
         System.out.println(symTable.addToST("heii"));
         System.out.println(symTable.addToST("hiei"));
         System.out.println(symTable.addToST("ihei"));
-        System.out.println(symTable.addToST("heii"));
+//        System.out.println(symTable.addToST("heii"));
+        System.out.println(symTable.addToST("a"));
+        System.out.println(symTable.addToST("b"));
+        System.out.println(symTable.addToST("c"));
+        System.out.println(symTable.addToST("d"));
+        System.out.println(symTable.addToST("e"));
+        System.out.println(symTable.addToST("f"));
 
         System.out.println(symTable);
 
