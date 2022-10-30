@@ -1,0 +1,3 @@
++,-,*,/,=,<,<=,==,>=,%
+[,],{,},(,), ,;,"
+array,text,number,const,if,while,for,read,write,Func,and,or,not,true,false

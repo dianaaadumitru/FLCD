@@ -1,0 +1,25 @@
+Func  {
+	number #1a;
+	number b;
+	number c;
+	number maxi;
+
+	read(#1a);
+	read(b);
+	read(c);
+	if ( #1a > b and #1a > c ) {
+		maxi = #1a;
+	}
+
+	if ( b > #1a and b > c ) {
+		maxi = b;
+	}
+
+	if ( c > #1a and c > b ) {
+		maxi = c;
+	}
+
+	text message = 'max is: ';
+
+	write(message maxi);
+}

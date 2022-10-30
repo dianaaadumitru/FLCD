@@ -1,0 +1,15 @@
+Func  {
+	number a;
+	number b;
+
+	read(a);
+	read(b);
+
+	while (b not 0) {
+		number r = a % b;
+		a = b;
+		b = r;
+	}
+
+	write("gcd: ", a);
+}
