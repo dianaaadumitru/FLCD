@@ -114,15 +114,21 @@ public class ProgramScanner {
     public boolean isIntConstant() {
         Pattern intRegex = Pattern.compile("^([-]?[1-9]\\d*|0)");
         Matcher matcher = intRegex.matcher(program.substring(index));
-        while (matcher.find()) {
+        if (matcher.find()) {
             String token = matcher.group();
+
+            if (pif.size() > 0) {
+                System.out.println("Found int constant: " + token);
+            }
+
             pif.add(new Pair<>("intConst", new Pair<>(-2, -2)));
             symbolTable.addToST(token);
             index += matcher.end();
-            System.out.println("Found int constant: " + token);
             return true;
         }
-        return true;
+
+
+        return false;
     }
 
     public boolean isStringConstant() throws ScannerException {
@@ -184,7 +190,7 @@ public class ProgramScanner {
         if (index == program.length())
             return;
 
-        if (isTokenFromList() || isIdentifier() || isStringConstant())
+        if (isIntConstant() || isTokenFromList() || isIdentifier() || isStringConstant())
             return;
 
         StringBuilder errorToken = new StringBuilder();

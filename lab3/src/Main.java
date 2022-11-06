@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         try {
-            Scanner scanner = new Scanner(new File("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab3\\src\\data\\p3.txt"));
+            Scanner scanner = new Scanner(new File("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab3\\src\\data\\p2.txt"));
             StringBuilder program = new StringBuilder();
             while (scanner.hasNextLine()) {
                 program.append(scanner.nextLine()).append('\n');

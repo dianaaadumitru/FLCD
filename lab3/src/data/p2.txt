@@ -11,5 +11,5 @@ Func  {
 		b = r;
 	}
 
-	write("gcd: ", a);
+	write("gcd ", a);
 }
