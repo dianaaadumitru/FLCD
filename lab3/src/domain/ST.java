@@ -4,8 +4,8 @@ public class ST<T> {
 
     private final HashTable<T> items;
 
-    public ST(HashTable<T> items) {
-        this.items = items;
+    public ST() {
+        this.items = new HashTable<>(16);
     }
 
     public HashTable<T> getItems() {

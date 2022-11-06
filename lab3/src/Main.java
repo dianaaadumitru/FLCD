@@ -1,35 +1,49 @@
 import domain.HashTable;
 import domain.ProgramScanner;
 import domain.ST;
+import exceptions.ScannerException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        HashTable<String> ht = new HashTable<>(10);
-        ST<String> symTable = new ST<>(ht);
+        try {
+            Scanner scanner = new Scanner(new File("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab3\\src\\data\\p3.txt"));
+            StringBuilder program = new StringBuilder();
+            while (scanner.hasNextLine()) {
+                program.append(scanner.nextLine()).append('\n');
+            }
+            scanner.close();
 
-        // test add
-//        System.out.println(symTable.addToST("heii"));
-//        System.out.println(symTable.addToST("hiei"));
-//        System.out.println(symTable.addToST("ihei"));
-//        System.out.println(symTable.addToST("a"));
-//        System.out.println(symTable.addToST("b"));
-//        System.out.println(symTable.addToST("c"));
-//        System.out.println(symTable.addToST("d"));
-//        System.out.println(symTable.addToST("e"));
-//        System.out.println(symTable.addToST("f"));
-//
-//        System.out.println(symTable);
-//
-//        //test remove
-//        symTable.removeItem("heii");
-//        System.out.println(symTable);
+            Scanner scannerTokens = new Scanner(new File("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab3\\src\\data\\token.in"));
+            List<String> tokens = new ArrayList<>();
 
-        ProgramScanner programScanner = new ProgramScanner("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD\\lab2\\src\\data\\p1.txt");
-//        var l1 = programScanner.getOperators();
-//        for (var s: l1) {
-//            System.out.println(s);
-//        }
+            while (scannerTokens.hasNextLine()) {
+                tokens.add(scannerTokens.nextLine());
+            }
+            scannerTokens.close();
 
-        System.out.println(programScanner.isConstant("a"));
+            ProgramScanner programScanner = new ProgramScanner(program.toString(), tokens);
+            try {
+                programScanner.scan();
+                programScanner.writeToPIFFile();
+                programScanner.writeToSTFile();
+            } catch (ScannerException e) {
+                System.out.println(e.getMessage());
+                programScanner.writeToPIFFile();
+                programScanner.writeToSTFile();
+                return;
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+        }
+        catch (IOException e) {
+            System.out.println("Cannot write into output files");
+        }
     }
 }
