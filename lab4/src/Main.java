@@ -39,7 +39,7 @@ public class Main {
                 case 2 -> System.out.println(finiteAutomata.getAlphabet().toString());
                 case 3 -> System.out.println(finiteAutomata.getInitialState().toString());
                 case 4 -> System.out.println(finiteAutomata.getFinalStates().toString());
-                case 5 -> System.out.println(finiteAutomata.getTransitions().toString());
+                case 5 -> System.out.println(finiteAutomata.displayTransitions());
                 case 6 -> System.out.println(checkIfAccepted(finiteAutomata));
                 case 0 -> done = true;
             }

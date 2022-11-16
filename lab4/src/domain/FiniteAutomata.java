@@ -46,6 +46,15 @@ public class FiniteAutomata {
         return initialState;
     }
 
+    public String displayTransitions() {
+        StringBuilder sb = new StringBuilder();
+        for (var transition: transitions) {
+            sb.append(transition.getKey().getKey()).append("->").append(transition.getKey().getValue()).append("->").append(transition.getValue()).append("\n");
+        }
+
+        return sb.toString();
+    }
+
     public void readFromFile(String file) {
         try {
             Scanner scanner = new Scanner(new File(file));
