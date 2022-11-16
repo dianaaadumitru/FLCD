@@ -19,6 +19,6 @@ Func {
 		maxi = c;
 	}
 
-	text message = "max is ";
+	text message = "max is "; @
 	write(message, maxi);
 }

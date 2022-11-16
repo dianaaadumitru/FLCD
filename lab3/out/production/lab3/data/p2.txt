@@ -1,6 +1,6 @@
 Func  {
-	number a;
-	number b;
+	number ab; @
+	number ba;
 
 	read(a);
 	read(b);
@@ -11,5 +11,5 @@ Func  {
 		b = r;
 	}
 
-	write("gcd: ", a);
+	write("gcd ", a);@
 }

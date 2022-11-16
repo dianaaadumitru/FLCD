@@ -1,7 +1,7 @@
 Func  {
-	number array arr;
-	number lengthArray;
-	read(lengthArray);
+	number array arr; @
+	number lengthArray;@
+	read(lengthArray);@
 	number sum = 0;
 	number i;
 	for (i=0; i<lengthArray; i=i+1) {
@@ -9,6 +9,6 @@ Func  {
 		sum = sum + arr[i];
 	}
 
-	text message = 'sum of numbers is: ';
+	text message = "sum of numbers is ";@
 	write(message, sum);
 }
