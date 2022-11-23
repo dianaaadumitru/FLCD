@@ -71,4 +71,31 @@ public class Grammar {
             e.printStackTrace();
         }
     }
+
+    public List<String> productionForNonTerminal(String nonTerminal) {
+        List<String> productionsForNonTerminal = new ArrayList<>();
+        for (var production: productions) {
+            if (production.getKey().equals(nonTerminal)) {
+                StringBuilder sb = new StringBuilder();
+                for (var prod: production.getValue()) {
+                    sb.append(prod).append("|");
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                productionsForNonTerminal.add(sb.toString());
+            }
+        }
+
+        return  productionsForNonTerminal;
+    }
+
+    public String displayProdForNonTerm(String nonTerminal) {
+        StringBuilder sb = new StringBuilder();
+        List<String> prod = this.productionForNonTerminal(nonTerminal);
+            for (var prodSet: prod) {
+                sb.append(nonTerminal).append("->");
+                sb.append(prodSet);
+                sb.append("\n");
+            }
+        return sb.toString();
+    }
 }
