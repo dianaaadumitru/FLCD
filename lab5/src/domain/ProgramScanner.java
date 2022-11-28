@@ -135,7 +135,7 @@ public class ProgramScanner {
         }
     }
 
-    public void writeToSTFile () throws IOException {
+    public void writeToSTFile() throws IOException {
         FileWriter writer = new FileWriter("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab3\\src\\data\\ST.out");
         writer.write(symbolTable.toString());
         writer.close();

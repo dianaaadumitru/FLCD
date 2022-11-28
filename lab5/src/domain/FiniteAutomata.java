@@ -48,7 +48,7 @@ public class FiniteAutomata {
 
     public String displayTransitions() {
         StringBuilder sb = new StringBuilder();
-        for (var transition: transitions) {
+        for (var transition : transitions) {
             sb.append(transition.getKey().getKey()).append("->").append(transition.getKey().getValue()).append("->").append(transition.getValue()).append("\n");
         }
 

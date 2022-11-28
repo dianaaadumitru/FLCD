@@ -10,11 +10,9 @@ import java.util.Scanner;
 public class Grammar {
     private final List<String> nonterminals;
     private final List<String> terminals;
-
-    private String startSymbol;
-    private final List<Pair<String, List>> productions;
-
+    private final List<Pair<String, List<String>>> productions;
     private final String fileName;
+    private String startSymbol;
 
     public Grammar(String fileName) {
         this.fileName = fileName;
@@ -32,15 +30,15 @@ public class Grammar {
         return terminals;
     }
 
-    public List<Pair<String, List>> getProductions() {
+    public List<Pair<String, List<String>>> getProductions() {
         return productions;
     }
 
     public String displayProductions() {
         StringBuilder sb = new StringBuilder();
-        for (var production: productions) {
+        for (var production : productions) {
             sb.append(production.getKey()).append("->");
-            for (var prodSet: production.getValue()) {
+            for (var prodSet : production.getValue()) {
                 sb.append(prodSet).append("|");
             }
             sb.deleteCharAt(sb.length() - 1);
@@ -63,7 +61,7 @@ public class Grammar {
             while (scanner.hasNextLine()) {
                 String[] productionPair = scanner.nextLine().split("->");
                 List<String> prodSet;
-                prodSet = Arrays.asList(productionPair[1].split("/"));
+                prodSet = Arrays.asList(productionPair[1].split("\\|"));
                 productions.add(new Pair<>(productionPair[0], prodSet));
 
             }
@@ -74,10 +72,10 @@ public class Grammar {
 
     public List<String> productionForNonTerminal(String nonTerminal) {
         List<String> productionsForNonTerminal = new ArrayList<>();
-        for (var production: productions) {
+        for (var production : productions) {
             if (production.getKey().equals(nonTerminal)) {
                 StringBuilder sb = new StringBuilder();
-                for (var prod: production.getValue()) {
+                for (var prod : production.getValue()) {
                     sb.append(prod).append("|");
                 }
                 sb.deleteCharAt(sb.length() - 1);
@@ -85,17 +83,52 @@ public class Grammar {
             }
         }
 
-        return  productionsForNonTerminal;
+        return productionsForNonTerminal;
     }
 
     public String displayProdForNonTerm(String nonTerminal) {
         StringBuilder sb = new StringBuilder();
         List<String> prod = this.productionForNonTerminal(nonTerminal);
-            for (var prodSet: prod) {
-                sb.append(nonTerminal).append("->");
-                sb.append(prodSet);
-                sb.append("\n");
-            }
+        for (var prodSet : prod) {
+            sb.append(nonTerminal).append("->");
+            sb.append(prodSet);
+            sb.append("\n");
+        }
         return sb.toString();
+    }
+
+    private List<String> stringToList(String string) {
+        return List.of(string.split(" "));
+    }
+
+    public boolean checkIfCFG() {
+        // check if start symbol appears in lhs of productions
+        boolean startSymbolExists = false;
+        for (var pair : productions) {
+            if (pair.getKey().equals(startSymbol)) {
+                startSymbolExists = true;
+                break;
+            }
+        }
+        if (!startSymbolExists)
+            return false;
+
+        // check if all lhs of productions are of length 1 and appear in nonterminals
+        for (var pair : productions) {
+            // string that contains more than one word not ok
+            if (pair.getKey().contains(" "))
+                return false;
+            if (!nonterminals.contains(pair.getKey()))
+                return false;
+            // check if all rhs of productions appear in set of nonterminals or set of terminals
+            for (var rhs : pair.getValue()) {
+                List<String> rhsAsList = stringToList(rhs);
+                for (String character : rhsAsList) {
+                    if (!nonterminals.contains(character) && !terminals.contains(character))
+                        return false;
+                }
+            }
+        }
+        return true;
     }
 }
