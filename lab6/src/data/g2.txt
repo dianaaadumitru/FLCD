@@ -1,0 +1,24 @@
+simpletype,number,text,arraydecl,type,declaration,cmpstmt,program,simplestmt,stmtlist,structstmt,ifstmt,whilestmt,forstmt,assignstmt,iostmt,expression,term,factor,condition,statement,outputvariables,relation
+number,array,text,const,if,else,while,for,read,write,Func,and,or,not [,],{,},==,=,<=,>=,;,:,+,*,/,-,<,>,(,), ,%,identifier
+program
+simpletype->number|text
+arraydecl->simpletype array identifier
+type->simpletype|arraydecl
+declaration->type identifier ;
+cmpstmt->{ stmtlist }
+stmtlist->statement|statement ; stmtlist
+statement->simplestmt|structstmt
+structstmt->cmpstmt|ifstmt|whilestmt|forstmt
+simplestmt->iostmt|assignstmt
+assignstmt->identifier = expression
+expression->expression + term|term
+term->term * factor|factor
+factor->( expression )|identifier
+ifstmt->if ( condition ) { statement }|if ( condition ) { statement } else { statement }
+whilestmt->while ( condition ) { statement }
+forstmt->for ( assignstmt ; condition ; assignstmt ) { statement }
+outputvariables->identifier|const
+iostmt->read ( identifier )|write ( outputvariables )
+condition->expression relation expression
+relation-><|<=|==|>=|>
+program->Func { stmtlist }
