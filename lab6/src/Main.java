@@ -25,7 +25,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Grammar grammar = new Grammar("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab6\\src\\data\\g3.txt");
+        Grammar grammar = new Grammar("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab6\\src\\data\\g1.txt");
         boolean done = false;
 //        while (!done) {
 //            System.out.println(menuGrammar());

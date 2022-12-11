@@ -1,7 +1,6 @@
 package domain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -19,10 +18,9 @@ public class Parser {
     }
 
     public void canonicalCollection() {
-        productionsWithDot.add(new Pair<>("S'", Arrays.asList("." + grammar.getStartSymbol())));
+        productionsWithDot.add(new Pair<>("S'", List.of("." + grammar.getStartSymbol())));
+        var state0 = this.closure(productionsWithDot);
 
-
-        closure(productionsWithDot);
     }
 
     private void gotoLR() {
@@ -30,58 +28,63 @@ public class Parser {
     }
 
 
-    private void closure(List<Pair<String, List<String>>> closureList)
-    /*
-    I-state
-                repeat
-                for any [A -> α.Bβ] in C do
-                for any B -> γ in P do
-                if [B -> .γ] 2/ C then
-        C = C U [B -> .γ]
-        end if
-        end for
-        end for
-        until C stops changing
-            :return: C = closure(I);
-     */ {
+    /**
+     * I-state
+     * repeat
+     *      for any [A -> α.Bβ] in C do
+     *          for any B -> γ in P do
+     *              if [B -> .γ] 2/ C then
+     *                  C = C U [B -> .γ]
+     *              end if
+     *          end for
+     *      end for
+     * until C stops changing
+     * :return: C = closure(I);
+     */
+    public List<Pair<String, List<String>>> closure(List<Pair<String, List<String>>> closureList) {
         boolean notDone = true;
-        var copy = new ArrayList<>(productionsWithDot);
+        var newList = new ArrayList<>(closureList);
+        var oldList = new ArrayList<>(closureList);
         while (notDone) {
             for (var production : closureList) {
-                if (production.getValue().get(0).charAt(0) == '.') {
+                // find the dot position
+                int index = production.getValue().get(0).indexOf('.');
 
-                    List<String> productionOfStartSymbol = grammar.productionForNonTerminal(grammar.getStartSymbol());
+                // check if dot is not at end
+                if (index < production.getValue().get(0).length() - 1) {
 
-                    for (var production2 : productionOfStartSymbol) {
-                        copy.add(new Pair<>(grammar.getStartSymbol(), Arrays.asList("." + production2)));
+                    List<String> productionOfStartSymbol = grammar.productionForNonTerminal(production.getValue().get(0).substring(index + 1, index + 2));
+                    if (!productionOfStartSymbol.isEmpty()) {
+                    var prodSet = productionOfStartSymbol.get(0).split("\\|");
+
+                        for (var production2 : prodSet) {
+                            var value = new Pair<>(grammar.getStartSymbol(), List.of("." + production2));
+                            boolean contain = existsInList(newList, value);
+                            if (!contain) {
+                                System.out.println("here");
+                                newList.add(value);
+                            }
+                        }
                     }
-
-                    notDone = false;
                 }
             }
+            if (newList.equals(oldList)) {
+                notDone = false;
+            }
+
+            oldList = new ArrayList<>(newList);
         }
-        productionsWithDot = new ArrayList<>(copy);
+
+        return newList;
+    }
+
+    private boolean existsInList(List<Pair<String, List<String>>> givenList, Pair<String, List<String>> value) {
+        for (var elem: givenList) {
+            if (elem.getKey().equals(value.getKey()) && elem.getValue().equals(value.getValue()))
+                return true;
+        }
+        return false;
     }
 }
 
-//
-//    Map<List<String>, List<List<String>>> P = new HashMap<>();
-//    List<String> lineListT = Arrays.asList(input.split("->"));
-//    List<String> lineList =
-//            lineListT.stream().map(String::trim).collect(Collectors.toList());
-//    //lineList : [S, .A B]
-//    List<String> key = Arrays.asList(lineList.get(0).strip().split(" \\| "));
-//    List<List<String>> value = new ArrayList<>();
-//    List<String> token = List.of(lineList.get(1).split("\\|"));
-//        for(var str:token){
-//                List<String> prod = Arrays.asList(str.strip().split(" "));
-//        value.add(prod);
-//        }
-//        //split la lista dupa |
-//        P.put(key, value);
-//        int size = 0;
-//        int index = -1;
-//        String nonT;
-//        pana aici o sa fie {[S]:[[.A, B]}
-//pana aici e ok
 
