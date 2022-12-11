@@ -22,6 +22,10 @@ public class Grammar {
         readFromFile(fileName);
     }
 
+    public String getStartSymbol() {
+        return startSymbol;
+    }
+
     public List<String> getNonterminals() {
         return nonterminals;
     }

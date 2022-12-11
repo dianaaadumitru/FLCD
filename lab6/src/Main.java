@@ -1,4 +1,5 @@
 import domain.Grammar;
+import domain.Parser;
 
 import java.util.Scanner;
 
@@ -24,22 +25,25 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Grammar grammar = new Grammar("C:\\Users\\diana.dumitru\\Desktop\\facultate\\FLCD-java\\lab5\\src\\data\\g2.txt");
+        Grammar grammar = new Grammar("C:\\Users\\diana\\Desktop\\uni work\\5th sem\\flcd\\FLCD2\\lab6\\src\\data\\g3.txt");
         boolean done = false;
-        while (!done) {
-            System.out.println(menuGrammar());
-            System.out.println(">>");
-            Scanner scanner = new Scanner(System.in);
-            int choice = scanner.nextInt();
-            switch (choice) {
-                case 1 -> System.out.println(grammar.getNonterminals().toString());
-                case 2 -> System.out.println(grammar.getTerminals().toString());
-                case 3 -> System.out.println(grammar.displayProductions());
-                case 4 -> System.out.println(displayProdForNonterminal(grammar));
-                case 5 -> System.out.println(grammar.checkIfCFG());
-
-                case 0 -> done = true;
-            }
-        }
+//        while (!done) {
+//            System.out.println(menuGrammar());
+//            System.out.println(">>");
+//            Scanner scanner = new Scanner(System.in);
+//            int choice = scanner.nextInt();
+//            switch (choice) {
+//                case 1 -> System.out.println(grammar.getNonterminals().toString());
+//                case 2 -> System.out.println(grammar.getTerminals().toString());
+//                case 3 -> System.out.println(grammar.displayProductions());
+//                case 4 -> System.out.println(displayProdForNonterminal(grammar));
+//                case 5 -> System.out.println(grammar.checkIfCFG());
+//
+//                case 0 -> done = true;
+//            }
+//        }
+        Parser parser = new Parser(grammar);
+        parser.canonicalCollection();
+        System.out.println(parser.getProductionsWithDot().toString());
     }
 }
