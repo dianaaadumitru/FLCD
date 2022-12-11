@@ -20,11 +20,38 @@ public class Parser {
     public void canonicalCollection() {
         productionsWithDot.add(new Pair<>("S'", List.of("." + grammar.getStartSymbol())));
         var state0 = this.closure(productionsWithDot);
+        System.out.println(gotoLR(state0, "c"));;
 
     }
 
-    private void gotoLR() {
+    /**
+     * goto(s, X) = closure({[A → αX.β]|[A → α.Xβ] ∈ s})
+     * @param state
+     * @param symbol all symbols terminals and nonterminals
+     * @return a closure
+     */
+    private List<Pair<String, List<String>>> gotoLR(List<Pair<String, List<String>>> state, String symbol) {
+        List<Pair<String, List<String>>> items = new ArrayList<>();
+        for (var currentState: state) {
+                // find the dot position
+                int index = currentState.getValue().get(0).indexOf('.');
 
+                // check if dot is not at end
+                if (index < currentState.getValue().get(0).length() - 1) {
+                    if (currentState.getValue().get(0).substring(index + 1, index + 2).equals(symbol)) {
+                        //a.Sb => aS.b
+                        String newItem;
+                        if (index != 0){
+                            newItem = currentState.getValue().get(0).substring(0, index - 1) + currentState.getValue().get(0).substring(index + 1, index + 2) + "." + currentState.getValue().get(0).substring(index + 2);
+                        } else {
+                            newItem = currentState.getValue().get(0).substring(1, 2) + "." + currentState.getValue().get(0).substring(2);
+                        }
+                        items.add(new Pair<>(currentState.getKey(), List.of(newItem)));
+                    }
+
+                }
+        }
+        return closure(items);
     }
 
 
