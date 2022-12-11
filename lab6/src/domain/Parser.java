@@ -2,6 +2,8 @@ package domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Parser {
     private Grammar grammar;
@@ -20,12 +22,43 @@ public class Parser {
         return productionsWithDot;
     }
 
+    private List<String> getAllSymbols()
+    {
+        return Stream.concat(grammar.getNonterminals().stream(), grammar.getTerminals().stream()).collect(Collectors.toList());
+    }
     public void canonicalCollection() {
+        System.out.println("closure:");
+        System.out.println(closure(List.of(new Pair<>("S", List.of("a. A")))));
+        System.out.println(grammar.productionForNonTerminal("A"));
         productionsWithDot.add(new Pair<>("S'", List.of("." + grammar.getStartSymbol())));
         var state0 = this.closure(productionsWithDot);
         canonicalCollection.add(state0);
+        boolean done = false;
+        while(!done)
+        {
+            var canonicalCollectionCopy = new ArrayList<>(canonicalCollection);
+            for(var state: canonicalCollectionCopy)
+            {
+                for(var symbol: getAllSymbols())
+                {
+                    var result = gotoLR(state, symbol);
+                    System.out.println(result);
+                    if(!result.isEmpty())
+                    {
+                        if(!existsInCanonicalCollection(canonicalCollectionCopy,result))
+                        {
+                            canonicalCollection.add(result);
+                        }
 
-        System.out.println(gotoLR(state0, "c"));;
+                    }
+                }
+            }
+            if(canonicalCollectionCopy.equals(canonicalCollection))
+            {
+                done = true;
+            }
+        }
+        //System.out.println(gotoLR(state0, "c"));;
 
     }
 
@@ -84,17 +117,25 @@ public class Parser {
 
                 // check if dot is not at end
                 if (index < production.getValue().get(0).length() - 1) {
-
-                    List<String> productionOfStartSymbol = grammar.productionForNonTerminal(production.getValue().get(0).substring(index + 1, index + 2));
+                    List<String> productionOfStartSymbol = new ArrayList<>();
+                    if(production.getValue().get(0).substring(index + 1, index + 2).equals(" ")){
+                        productionOfStartSymbol = grammar.productionForNonTerminal(production.getValue().get(0).substring(index + 2, index + 3));
+                    }
+                    else
+                    {
+                    productionOfStartSymbol = grammar.productionForNonTerminal(production.getValue().get(0).substring(index + 1, index + 2));
+                    }
                     if (!productionOfStartSymbol.isEmpty()) {
-                    var prodSet = productionOfStartSymbol.get(0).split("\\|");
 
-                        for (var production2 : prodSet) {
-                            var value = new Pair<>(grammar.getStartSymbol(), List.of("." + production2));
-                            boolean contain = existsInList(newList, value);
-                            if (!contain) {
-                                System.out.println("here");
-                                newList.add(value);
+
+                        for (var production2 : productionOfStartSymbol) {
+                            var prodSet = production2.split("\\|");
+                            for(var production3: prodSet) {
+                                var value = new Pair<>(grammar.getStartSymbol(), List.of("." + production3));
+                                boolean contain = existsInList(newList, value);
+                                if (!contain) {
+                                    newList.add(value);
+                                }
                             }
                         }
                     }
@@ -114,6 +155,19 @@ public class Parser {
         for (var elem: givenList) {
             if (elem.getKey().equals(value.getKey()) && elem.getValue().equals(value.getValue()))
                 return true;
+        }
+        return false;
+    }
+
+    private boolean existsInCanonicalCollection(List<List<Pair<String, List<String>>>> canonicalCollection, List<Pair<String, List<String>>> result)
+    {
+        for(var elem: canonicalCollection)
+        {
+            for(var sym: result) {
+                if (existsInList(elem, sym)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
