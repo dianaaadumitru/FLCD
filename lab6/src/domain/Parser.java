@@ -8,9 +8,12 @@ public class Parser {
 
     private List<Pair<String, List<String>>> productionsWithDot;
 
+    private List<List<Pair<String, List<String>>>> canonicalCollection;
+
     public Parser(Grammar grammar) {
         this.grammar = grammar;
         productionsWithDot = new ArrayList<>();
+        canonicalCollection = new ArrayList<>();
     }
 
     public List<Pair<String, List<String>>> getProductionsWithDot() {
@@ -20,6 +23,8 @@ public class Parser {
     public void canonicalCollection() {
         productionsWithDot.add(new Pair<>("S'", List.of("." + grammar.getStartSymbol())));
         var state0 = this.closure(productionsWithDot);
+        canonicalCollection.add(state0);
+
         System.out.println(gotoLR(state0, "c"));;
 
     }

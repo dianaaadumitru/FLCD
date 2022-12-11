@@ -4,3 +4,4 @@ S
 S->a|A
 A->b a|A
 A->c
+
