@@ -24,17 +24,18 @@ public class Parser {
         canonicalCollection.add(state0);
         boolean done = false;
         int indexState = 0;
+        int startParsing = -1;
         while (!done) {
+            startParsing++;
             var canonicalCollectionCopy = new ArrayList<>(canonicalCollection);
-            System.out.println("canonical set: " + canonicalCollectionCopy);
-            for (var states : canonicalCollectionCopy) {
-                System.out.println("states: " + states);
-                for (var state: states) {
-                    indexState++;
+            for (int i = startParsing; i < canonicalCollectionCopy.size(); i++) {
+                for (var state: canonicalCollectionCopy.get(i)) {
+
                     for (var symbol : getAllSymbols()) {
                         var result = gotoLR(state, symbol);
 
                         if (!result.isEmpty()) {
+                            indexState++;
                             System.out.println("s" + indexState + " = goto(" + symbol + ") = " + result);
                             if (!existsInCanonicalCollection(canonicalCollectionCopy, result)) {
                                 canonicalCollection.add(result);
