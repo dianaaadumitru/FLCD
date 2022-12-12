@@ -25,7 +25,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Grammar grammar = new Grammar("D:\\Semestrul 5\\compilator\\FLCD\\lab6\\src\\data\\g3.txt");
+        Grammar grammar = new Grammar("./res/data/g3.txt");
         boolean done = false;
 //        while (!done) {
 //            System.out.println(menuGrammar());
