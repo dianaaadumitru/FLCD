@@ -29,7 +29,7 @@ public class Parser {
             startParsing++;
             var canonicalCollectionCopy = new ArrayList<>(canonicalCollection);
             for (int i = startParsing; i < canonicalCollectionCopy.size(); i++) {
-                for (var state: canonicalCollectionCopy.get(i)) {
+                for (var state : canonicalCollectionCopy.get(i)) {
 
                     for (var symbol : getAllSymbols()) {
                         var result = gotoLR(state, symbol);
@@ -54,7 +54,7 @@ public class Parser {
     /**
      * goto(s, X) = closure({[A → αX.β]|[A → α.Xβ] ∈ s})
      *
-     * @param state current state
+     * @param state  current state
      * @param symbol terminal or nonterminal
      * @return a closure
      */
@@ -85,13 +85,13 @@ public class Parser {
     /**
      * I-state
      * repeat
-     *      for any [A -> α.Bβ] in C do
-     *          for any B -> γ in P do
-     *              if [B -> .γ] 2/ C then
-     *                  C = C U [B -> .γ]
-     *              end if
-     *          end for
-     *      end for
+     * for any [A -> α.Bβ] in C do
+     * for any B -> γ in P do
+     * if [B -> .γ] 2/ C then
+     * C = C U [B -> .γ]
+     * end if
+     * end for
+     * end for
      * until C stops changing
      * :return: C = closure(I);
      */
