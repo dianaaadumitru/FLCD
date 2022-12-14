@@ -30,15 +30,13 @@ public class Parser {
             var canonicalCollectionCopy = new ArrayList<>(canonicalCollection);
             for (int i = startParsing; i < canonicalCollectionCopy.size(); i++) {
                 for (var state : canonicalCollectionCopy.get(i)) {
-
                     for (var symbol : getAllSymbols()) {
                         var result = gotoLR(state, symbol);
-                        System.out.println("result: " + result);
                         if (!result.isEmpty()) {
+
                             indexState++;
                             System.out.println("s" + indexState + " = goto(" + symbol + ") = " + result);
                             if (!existsInCanonicalCollection(canonicalCollectionCopy, result)) {
-
                                 canonicalCollection.add(result);
                             }
 
@@ -60,31 +58,24 @@ public class Parser {
      * @return a closure
      */
     private List<Pair<String, List<String>>> gotoLR(Pair<String, List<String>> state, String symbol) {
-        System.out.println("state from goto: " + state);
         List<Pair<String, List<String>>> items = new ArrayList<>();
         // find the dot position
         int index = state.getValue().get(0).indexOf('.');
 
         // check if dot is not at end
         if (index < state.getValue().get(0).length() - 1) {
-//            System.out.println("dot position: " + index);
-//            System.out.println("production: " + productionWithoutSpaces);
             if (state.getValue().get(0).substring(index + 1, index + 2).equals(symbol)) {
                 //a.Sb => aS.b .abS => a.bS
                 String newItem;
                 if (index != 0) {
-//                    System.out.println("first elem: " + productionWithoutSpaces.substring(0, index));
                     newItem = state.getValue().get(0).substring(0, index) + state.getValue().get(0).charAt(index + 1) + "." + state.getValue().get(0).substring(index + 2);
-//                    System.out.println("new item: " + newItem);
                 } else {
                     newItem = state.getValue().get(0).charAt(1) + "." + state.getValue().get(0).substring(2);
-//                    System.out.println("new item: " + newItem);
                 }
                 items.add(new Pair<>(state.getKey(), List.of(newItem)));
             }
 
         }
-
         return closure(items);
     }
 
@@ -150,21 +141,26 @@ public class Parser {
 
     private boolean existsInList(List<Pair<String, List<String>>> givenList, Pair<String, List<String>> value) {
         for (var elem : givenList) {
-            if (elem.getKey().equals(value.getKey()) && elem.getValue().equals(value.getValue()))
-                return true;
+            if (elem.getKey().equals(value.getKey()) && elem.getValue().equals(value.getValue())) return true;
         }
         return false;
     }
 
     private boolean existsInCanonicalCollection(List<List<Pair<String, List<String>>>> canonicalCollection, List<Pair<String, List<String>>> result) {
+        boolean ok = false;
         for (var elem : canonicalCollection) {
+            int noOfEqualElems = 0;
             for (var sym : result) {
                 if (existsInList(elem, sym)) {
-                    return true;
+                    noOfEqualElems++;
                 }
             }
+            if (noOfEqualElems == result.size()) {
+                ok = true;
+                break;
+            }
         }
-        return false;
+        return ok;
     }
 
     private String removeSpaceFromProduction(String production) {
