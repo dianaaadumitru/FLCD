@@ -19,7 +19,7 @@ public class ProductionSet {
     }
 
     public List<List<String>> getProductionsOf(String lhs) {
-        return getProductionsOf(Collections.singletonList(lhs));
+        return getProductionsOf(List.of(lhs));
     }
 
     public HashMap<List<String>, List<List<String>>> getProductions() {
@@ -30,6 +30,10 @@ public class ProductionSet {
         if (!productions.containsKey(lhs))
             productions.put(lhs, new ArrayList<>());
         productions.get(lhs).add(rhs);
+    }
+
+    public void addProductionIfAbsent(List<String> lhs) {
+        productions.putIfAbsent(lhs, new ArrayList<>());
     }
 
     public ProductionSet copy() {
@@ -48,13 +52,13 @@ public class ProductionSet {
         return sb.toString();
     }
 
-    public List<Map.Entry<String, List<String>>> getOrderedProductions() {
-        var orderedProductions = new ArrayList<Map.Entry<String, List<String>>>();
-        for (var lhs : productions.keySet()) {
-            for (var rhs : productions.get(lhs)) {
-                orderedProductions.add(new AbstractMap.SimpleEntry<>(lhs.get(0), rhs));
-            }
-        }
+    public List<Pair<String, List<String>>> getOrderedProductions() {
+        List<Pair<String, List<String>>> orderedProductions = new ArrayList<>();
+        this.productions.forEach(
+                (lhs, rhs) -> rhs.forEach(
+                        (prod) -> orderedProductions.add(new Pair<>(lhs.get(0), prod))
+                )
+        );
         return orderedProductions;
     }
 }

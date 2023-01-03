@@ -1,6 +1,7 @@
 package domain;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Item {
     public final String lhs;
@@ -11,6 +12,11 @@ public class Item {
         this.lhs = lhs;
         this.rhs = rhs;
         this.dotPosition = dotPosition;
+    }
+
+    @Override
+    public boolean equals(Object item) {
+        return item instanceof Item && Objects.equals(((Item)item).lhs, this.lhs) && ((Item)item).rhs == rhs && Objects.equals(((Item)item).dotPosition, this.dotPosition);
     }
 
     @Override

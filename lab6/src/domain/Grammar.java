@@ -2,25 +2,51 @@ package domain;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Grammar {
     private final List<String> nonterminals;
     private final List<String> terminals;
-    private final ProductionSet productions;
-    private final String fileName;
+    private ProductionSet productions;
+    private String fileName;
     private String startSymbol;
+    private Map<List<String>, List<List<String>>> productions2;
+
+    public static final String enrichedGrammarStartingSymbol = "S0";
+    boolean isEnriched;
 
     public Grammar(String fileName) {
         this.fileName = fileName;
         this.nonterminals = new ArrayList<>();
         this.terminals = new ArrayList<>();
         this.productions = new ProductionSet();
+        this.productions2 = new HashMap<>();
         readFromFile(fileName);
+    }
+
+    public Grammar(List<String> nonterminals, List<String> terminals, String startSymbol, ProductionSet productions) {
+        this.nonterminals = nonterminals;
+        this.terminals = terminals;
+        this.startSymbol = startSymbol;
+        this.productions = productions;
+        this.isEnriched = true;
+    }
+
+    public Grammar(List<String> nonTerminals, List<String> terminals, String startingSymbol, Map<List<String>, List<List<String>>> productions) {
+        this.nonterminals = nonTerminals;
+        this.terminals = terminals;
+        this.startSymbol = startingSymbol;
+        this.productions2 = productions;
+        this.isEnriched = true;
+    }
+
+    public boolean isEnriched() {
+        return isEnriched;
+    }
+
+    public Map<List<String>, List<List<String>>> getProductions2() {
+        return productions2;
     }
 
     public String getStartSymbol() {
@@ -55,7 +81,13 @@ public class Grammar {
                 var lhs = Arrays.stream(production[0].trim().split(" ")).collect(Collectors.toList());
                 var rhs = Arrays.stream(production[1].trim().split(" ")).collect(Collectors.toList());
                 productions.addProduction(lhs, rhs);
+                if (!productions2.containsKey(lhs)) {
+                    productions2.put(lhs, new ArrayList<>());
+                }
+                productions2.get(lhs).add(rhs);
             }
+
+            this.isEnriched = false;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -103,24 +135,33 @@ public class Grammar {
         return true;
     }
 
-//    public boolean checkIfCFG() {
-//
-//        // check if all lhs of productions are of length 1 and appear in nonterminals
-//        for (var pair : productions) {
-//            // string that contains more than one word not ok
-//            if (pair.getKey().contains(" "))
-//                return false;
-//            if (!nonterminals.contains(pair.getKey()))
-//                return false;
-//            // check if all rhs of productions appear in set of nonterminals or set of terminals
-//            for (var rhs : pair.getValue()) {
-//                List<String> rhsAsList = stringToList(rhs);
-//                for (String character : rhsAsList) {
-//                    if (!nonterminals.contains(character) && !terminals.contains(character))
-//                        return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
+    public Grammar getEnrichedGrammar() {
+        if (isEnriched) {
+            return this;
+        }
+//        var newNonTerminals = new ArrayList<>(nonterminals);
+//        newNonTerminals.add(enrichedGrammarStartingSymbol);
+//        Grammar newGrammar = new Grammar(newNonTerminals, terminals, enrichedGrammarStartingSymbol, productions.copy());
+//        newGrammar.productions.addProduction(List.of(enrichedGrammarStartingSymbol), Collections.singletonList(startSymbol));
+//        return newGrammar;
+
+//        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions);
+//        enrichedGrammar.nonterminals.add(enrichedGrammarStartingSymbol);
+//        enrichedGrammar.productions.addProductionIfAbsent(List.of(enrichedGrammarStartingSymbol));
+//        enrichedGrammar.productions.getProductionsOf(List.of(enrichedGrammarStartingSymbol)).add(List.of(startSymbol));
+
+//        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions);
+
+        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions2);
+
+
+        enrichedGrammar.nonterminals.add(enrichedGrammarStartingSymbol);
+        enrichedGrammar.productions2.putIfAbsent(List.of(enrichedGrammarStartingSymbol), new ArrayList<>());
+        enrichedGrammar.productions2.get(List.of(enrichedGrammarStartingSymbol)).add(List.of(startSymbol));
+        return enrichedGrammar;
+    }
+
+    public List<List<String>> getProductionsForNonTerminal(String nonTerminal) {
+        return productions2.get(List.of(nonTerminal));
+    }
 }
