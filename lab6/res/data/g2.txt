@@ -1,7 +1,8 @@
 simpletype,number,text,arraydecl,type,declaration,cmpstmt,program,simplestmt,stmtlist,structstmt,ifstmt,whilestmt,forstmt,assignstmt,iostmt,expression,term,factor,condition,statement,outputvariables,relation
 number,array,text,const,if,else,while,for,read,write,Func,and,or,not [,],{,},==,=,<=,>=,;,:,+,*,/,-,<,>,(,), ,%,identifier
 program
-simpletype->number|text
+simpletype->number
+simpletype->text
 arraydecl->simpletype array identifier
 type->simpletype
 type->arraydecl

@@ -2,7 +2,10 @@ package domain;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Grammar {
@@ -62,49 +65,62 @@ public class Grammar {
         return productions.getProductionsOf(nonTerminal);
     }
 
-//    public String displayProdForNonTerm(String nonTerminal) {
-//        StringBuilder sb = new StringBuilder();
-//        List<String> prod = this.productionForNonTerminal(nonTerminal);
-//        for (var prodSet : prod) {
-//            sb.append(nonTerminal).append("->");
-//            sb.append(prodSet);
-//            sb.append("\n");
-//        }
-//        return sb.toString();
-//    }
-
-    private List<String> stringToList(String string) {
-        return List.of(string.split(" "));
-    }
-
-    public boolean checkIfCFG() {
+    public boolean checkCFG() {
         // check if start symbol appears in lhs of productions
         boolean startSymbolExists = false;
-        for (var pair : productions) {
-            if (pair.getKey().equals(startSymbol)) {
-                startSymbolExists = true;
-                break;
+        for (var key : productions.getProductions().keySet()) {
+            for (var symbol : key) {
+                if (symbol.equals(startSymbol)) {
+                    startSymbolExists = true;
+                    break;
+                }
             }
         }
         if (!startSymbolExists)
             return false;
 
-        // check if all lhs of productions are of length 1 and appear in nonterminals
-        for (var pair : productions) {
-            // string that contains more than one word not ok
-            if (pair.getKey().contains(" "))
+        // key that contains more than one word not ok
+        boolean contains = false;
+        for (var key : productions.getProductions().keySet()) {
+            if (key.size() != 1) {
                 return false;
-            if (!nonterminals.contains(pair.getKey()))
-                return false;
-            // check if all rhs of productions appear in set of nonterminals or set of terminals
-            for (var rhs : pair.getValue()) {
-                List<String> rhsAsList = stringToList(rhs);
-                for (String character : rhsAsList) {
-                    if (!nonterminals.contains(character) && !terminals.contains(character))
+            }
+            for (var symbol: key) {
+                if (!nonterminals.contains(symbol)) {
+                    return false;
+                }
+            }
+        }
+        // check if all rhs of productions appear in set of nonterminals or set of terminals
+        for (var values : productions.getProductions().values()) {
+            for (var value : values) {
+                for (var symbol: value) {
+                    if (!nonterminals.contains(symbol) && !terminals.contains(symbol))
                         return false;
                 }
             }
         }
         return true;
     }
+
+//    public boolean checkIfCFG() {
+//
+//        // check if all lhs of productions are of length 1 and appear in nonterminals
+//        for (var pair : productions) {
+//            // string that contains more than one word not ok
+//            if (pair.getKey().contains(" "))
+//                return false;
+//            if (!nonterminals.contains(pair.getKey()))
+//                return false;
+//            // check if all rhs of productions appear in set of nonterminals or set of terminals
+//            for (var rhs : pair.getValue()) {
+//                List<String> rhsAsList = stringToList(rhs);
+//                for (String character : rhsAsList) {
+//                    if (!nonterminals.contains(character) && !terminals.contains(character))
+//                        return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
 }
