@@ -25,23 +25,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Grammar grammar = new Grammar("./res/data/g3.txt");
-        boolean done = false;
-//        while (!done) {
-//            System.out.println(menuGrammar());
-//            System.out.println(">>");
-//            Scanner scanner = new Scanner(System.in);
-//            int choice = scanner.nextInt();
-//            switch (choice) {
-//                case 1 -> System.out.println(grammar.getNonterminals().toString());
-//                case 2 -> System.out.println(grammar.getTerminals().toString());
-//                case 3 -> System.out.println(grammar.displayProductions());
-//                case 4 -> System.out.println(displayProdForNonterminal(grammar));
-//                case 5 -> System.out.println(grammar.checkIfCFG());
-//
-//                case 0 -> done = true;
-//            }
-//        }
+        Grammar grammar = new Grammar("./res/data/g2.txt");
+
         Parser parser = new Parser(grammar);
         parser.canonicalCollection();
 //        System.out.println(parser.getProductionsWithDot().toString());
