@@ -1,170 +1,131 @@
 package domain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class Parser {
     private final Grammar grammar;
+    private final Grammar workingGrammar;
 
-    private final List<List<Pair<String, List<String>>>> canonicalCollection;
+    private final Set<Item> allItems;
+
+    private final List<Pair<String, List<String>>> orderedProductions;
 
     public Parser(Grammar grammar) {
         this.grammar = grammar;
-        canonicalCollection = new ArrayList<>();
+        this.allItems = new HashSet<>();
+
+        if (this.grammar.isEnriched()) {
+            this.workingGrammar = this.grammar;
+        } else {
+            this.workingGrammar = this.grammar.getEnrichedGrammar();
+        }
+
+        orderedProductions = this.grammar.getProductions().getOrderedProductions();
     }
 
-    private List<String> getAllSymbols() {
-        return Stream.concat(grammar.getNonterminals().stream(), grammar.getTerminals().stream()).collect(Collectors.toList());
+    public Grammar getGrammar() {
+        return grammar;
     }
 
-    public void canonicalCollection() {
-        var state0 = this.closure(List.of(new Pair<>("S'", List.of("." + grammar.getStartSymbol()))));
-        canonicalCollection.add(state0);
-        boolean done = false;
-        int indexState = 0;
-        int startParsing = -1;
-        while (!done) {
-            startParsing++;
-            var canonicalCollectionCopy = new ArrayList<>(canonicalCollection);
-            for (int i = startParsing; i < canonicalCollectionCopy.size(); i++) {
-                for (var state : canonicalCollectionCopy.get(i)) {
-                    for (var symbol : getAllSymbols()) {
-                        var result = gotoLR(state, symbol);
-                        if (!result.isEmpty()) {
+    public Grammar getWorkingGrammar() {
+        return workingGrammar;
+    }
 
-                            indexState++;
-                            System.out.println("s" + indexState + " = goto(" + symbol + ") = " + result);
-                            if (!existsInCanonicalCollection(canonicalCollectionCopy, result)) {
-                                canonicalCollection.add(result);
-                            }
+    private String getDotPrecededNonTerminal(Item item) {
+        try {
+            String term = item.rhs.get(item.dotPosition);
+            if (!grammar.getNonterminals().contains(term)) {
+                return null;
+            }
 
+            return term;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public State closure(Item item) {
+
+        Set<Item> oldClosure;
+        Set<Item> currentClosure = Set.of(item);
+
+        do {
+            oldClosure = currentClosure;
+            Set<Item> newClosure = new LinkedHashSet<>(currentClosure);
+            for (Item i : currentClosure) {
+                String nonTerminal = getDotPrecededNonTerminal(i);
+                if (nonTerminal != null) {
+                    for (List<String> prod : grammar.getProductionsForNonTerminal(nonTerminal)) {
+                        Item currentItem = new Item(nonTerminal, prod, 0);
+                        if (!containsItem(allItems, currentItem)) {
+                            newClosure.add(currentItem);
+                            allItems.add(currentItem);
                         }
                     }
                 }
             }
-            if (canonicalCollectionCopy.equals(canonicalCollection)) {
-                done = true;
-            }
-        }
+            currentClosure = newClosure;
+
+        } while (!oldClosure.equals(currentClosure));
+
+        return new State(currentClosure);
     }
 
-    /**
-     * goto(s, X) = closure({[A → αX.β]|[A → α.Xβ] ∈ s})
-     *
-     * @param state  current state
-     * @param symbol terminal or nonterminal
-     * @return a closure
-     */
-    private List<Pair<String, List<String>>> gotoLR(Pair<String, List<String>> state, String symbol) {
-        List<Pair<String, List<String>>> items = new ArrayList<>();
-        // find the dot position
-        int index = state.getValue().get(0).indexOf('.');
-
-        // check if dot is not at end
-        if (index < state.getValue().get(0).length() - 1) {
-            if (state.getValue().get(0).substring(index + 1, index + 2).equals(symbol)) {
-                //a.Sb => aS.b .abS => a.bS
-                String newItem;
-                if (index != 0) {
-                    newItem = state.getValue().get(0).substring(0, index) + state.getValue().get(0).charAt(index + 1) + "." + state.getValue().get(0).substring(index + 2);
-                } else {
-                    newItem = state.getValue().get(0).charAt(1) + "." + state.getValue().get(0).substring(2);
-                }
-                items.add(new Pair<>(state.getKey(), List.of(newItem)));
+    public State goTo(State state, String element) {
+        Set<Item> result = new LinkedHashSet<>();
+        for (Item item : state.items) {
+            String nonTerminal = item.rhs.get(item.dotPosition);
+            if (Objects.equals(nonTerminal, element)) {
+                Item nextItem = new Item(item.lhs, item.rhs, item.dotPosition + 1);
+                result.addAll(closure(nextItem).items);
             }
-
         }
-        return closure(items);
+        return new State(result);
     }
 
+    public CanonicalCollection canonicalCollection() {
+        CanonicalCollection canonicalCollection = new CanonicalCollection();
+//        canonicalCollection.addState(
+//                closure(
+//                        new Item(
+//                                workingGrammar.getStartSymbol(),
+//                                workingGrammar.getProductions().getProductionsOf(workingGrammar.getStartSymbol()).get(0),
+//                                0)
+//                )
+//        );
 
-    /**
-     * I-state
-     * repeat
-     * for any [A -> α.Bβ] in C do
-     * for any B -> γ in P do
-     * if [B -> .γ] 2/ C then
-     * C = C U [B -> .γ]
-     * end if
-     * end for
-     * end for
-     * until C stops changing
-     * :return: C = closure(I);
-     */
-    public List<Pair<String, List<String>>> closure(List<Pair<String, List<String>>> closureList) {
-        boolean notDone = true;
-        var newList = new ArrayList<>(closureList);
-        var oldList = new ArrayList<>(closureList);
-        while (notDone) {
-            for (var production : closureList) {
-                // find the dot position
-                int index = production.getValue().get(0).indexOf('.');
+        canonicalCollection.addState(
+                closure(
+                        new Item(
+                                workingGrammar.getStartSymbol(),
+                                workingGrammar.getProductionsForNonTerminal(workingGrammar.getStartSymbol()).get(0),
+                                0)
+                )
+        );
 
-                // check if dot is not at end
-                if (index < production.getValue().get(0).length() - 1) {
-                    List<String> productionOfStartSymbol;
-                    String nextSymbol;
-                    if (production.getValue().get(0).charAt(index + 1) == ' ') {
-                        nextSymbol = production.getValue().get(0).substring(index + 2, index + 3);
-                    } else {
-                        nextSymbol = production.getValue().get(0).substring(index + 1, index + 2);
-                    }
-                    productionOfStartSymbol = grammar.productionForNonTerminal(nextSymbol);
-                    if (!productionOfStartSymbol.isEmpty()) {
+        int i = 0;
+        while (i < canonicalCollection.states.size()) {
+            for (String symbol : canonicalCollection.states.get(i).getSymbolsSucceedingTheDot()) {
+                State newState = goTo(canonicalCollection.states.get(i), symbol);
 
-
-                        for (var production2 : productionOfStartSymbol) {
-                            var prodSet = production2.split("\\|");
-                            for (var production3 : prodSet) {
-                                String productionWithoutSpaces = removeSpaceFromProduction(production3).strip();
-                                var value = new Pair<>(nextSymbol, List.of("." + productionWithoutSpaces));
-                                boolean contain = existsInList(newList, value);
-                                if (!contain) {
-                                    newList.add(value);
-                                }
-                            }
-                        }
+                if (newState.getItems().size() != 0) {
+                    int indexInStates = canonicalCollection.states.indexOf(newState);
+                    if (indexInStates == -1) {
+                        canonicalCollection.addState(newState);
                     }
                 }
             }
-            if (newList.equals(oldList)) {
-                notDone = false;
-            }
-
-            oldList = new ArrayList<>(newList);
+            i++;
         }
-
-        return newList;
+        return canonicalCollection;
     }
 
-    private boolean existsInList(List<Pair<String, List<String>>> givenList, Pair<String, List<String>> value) {
-        for (var elem : givenList) {
-            if (elem.getKey().equals(value.getKey()) && elem.getValue().equals(value.getValue())) return true;
+    private boolean containsItem(Set<Item> closureList, Item item) {
+        for (Item it : closureList) {
+            if (it.equals(item))
+                return true;
         }
         return false;
-    }
-
-    private boolean existsInCanonicalCollection(List<List<Pair<String, List<String>>>> canonicalCollection, List<Pair<String, List<String>>> result) {
-        boolean ok = false;
-        for (var elem : canonicalCollection) {
-            int noOfEqualElems = 0;
-            for (var sym : result) {
-                if (existsInList(elem, sym)) {
-                    noOfEqualElems++;
-                }
-            }
-            if (noOfEqualElems == result.size()) {
-                ok = true;
-                break;
-            }
-        }
-        return ok;
-    }
-
-    private String removeSpaceFromProduction(String production) {
-        return production.replace(" ", "");
     }
 }
 
