@@ -1,14 +1,16 @@
 package domain;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CanonicalCollection {
     public final List<State> states;
     private Map<Pair<Integer, String>, Integer> adjacencyList;
 
 
-
-    public CanonicalCollection(){
+    public CanonicalCollection() {
         this.states = new ArrayList<>();
         this.adjacencyList = new HashMap<>();
     }
@@ -18,15 +20,15 @@ public class CanonicalCollection {
         this.adjacencyList = adjacencyList;
     }
 
-    public void addState(State state){
+    public void addState(State state) {
         this.states.add(states.size(), state);
     }
 
-    public List<State> getStates(){
+    public List<State> getStates() {
         return this.states;
     }
 
-    public Map<Pair<Integer, String>, Integer> getAdjacencyList(){
+    public Map<Pair<Integer, String>, Integer> getAdjacencyList() {
         return this.adjacencyList;
     }
 }

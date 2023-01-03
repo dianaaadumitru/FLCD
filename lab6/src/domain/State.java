@@ -42,6 +42,6 @@ public class State {
 
     @Override
     public String toString() {
-        return String.format("%s",  items);
+        return String.format("%s", items);
     }
 }

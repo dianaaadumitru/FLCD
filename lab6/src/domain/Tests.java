@@ -69,7 +69,7 @@ public class Tests {
                 0));
         State result = parser.goTo(state, state.getSymbolsSucceedingTheDot().get(0));
         assert result.getItems().size() == 2;
-        assert Objects.equals(result.getItems().toArray()[1], new Item("A", List.of("a","b"),0));
+        assert Objects.equals(result.getItems().toArray()[1], new Item("A", List.of("a", "b"), 0));
         System.out.println("Go To Test 1 Successful");
     }
 
@@ -83,7 +83,7 @@ public class Tests {
                 0));
         State result = parser.goTo(state, state.getSymbolsSucceedingTheDot().get(0));
         assert result.getItems().size() == 1;
-        assert Objects.equals(result.getItems().toArray()[1], new Item("S0", List.of("a"),1));
+        assert Objects.equals(result.getItems().toArray()[1], new Item("S0", List.of("a"), 1));
         System.out.println("Go To Test 2 Successful");
     }
 

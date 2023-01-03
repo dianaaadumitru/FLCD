@@ -14,7 +14,7 @@ public class Parser {
         this.grammar = grammar;
         this.allItems = new HashSet<>();
 
-        if(this.grammar.isEnriched()){
+        if (this.grammar.isEnriched()) {
             this.workingGrammar = this.grammar;
         } else {
             this.workingGrammar = this.grammar.getEnrichedGrammar();
@@ -34,18 +34,17 @@ public class Parser {
     private String getDotPrecededNonTerminal(Item item) {
         try {
             String term = item.rhs.get(item.dotPosition);
-            if(!grammar.getNonterminals().contains(term)){
+            if (!grammar.getNonterminals().contains(term)) {
                 return null;
             }
 
             return term;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
-    public State closure(Item item){
+    public State closure(Item item) {
 
         Set<Item> oldClosure;
         Set<Item> currentClosure = Set.of(item);
@@ -53,10 +52,10 @@ public class Parser {
         do {
             oldClosure = currentClosure;
             Set<Item> newClosure = new LinkedHashSet<>(currentClosure);
-            for(Item i: currentClosure){
+            for (Item i : currentClosure) {
                 String nonTerminal = getDotPrecededNonTerminal(i);
-                if(nonTerminal != null){
-                    for(List<String> prod:  grammar.getProductionsForNonTerminal(nonTerminal)){
+                if (nonTerminal != null) {
+                    for (List<String> prod : grammar.getProductionsForNonTerminal(nonTerminal)) {
                         Item currentItem = new Item(nonTerminal, prod, 0);
                         if (!containsItem(allItems, currentItem)) {
                             newClosure.add(currentItem);
@@ -67,7 +66,7 @@ public class Parser {
             }
             currentClosure = newClosure;
 
-        } while(!oldClosure.equals(currentClosure));
+        } while (!oldClosure.equals(currentClosure));
 
         return new State(currentClosure);
     }
@@ -122,7 +121,7 @@ public class Parser {
     }
 
     private boolean containsItem(Set<Item> closureList, Item item) {
-        for (Item it: closureList) {
+        for (Item it : closureList) {
             if (it.equals(item))
                 return true;
         }

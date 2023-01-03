@@ -16,7 +16,7 @@ public class Item {
 
     @Override
     public boolean equals(Object item) {
-        return item instanceof Item && Objects.equals(((Item)item).lhs, this.lhs) && ((Item)item).rhs == rhs && Objects.equals(((Item)item).dotPosition, this.dotPosition);
+        return item instanceof Item && Objects.equals(((Item) item).lhs, this.lhs) && ((Item) item).rhs == rhs && Objects.equals(((Item) item).dotPosition, this.dotPosition);
     }
 
     @Override

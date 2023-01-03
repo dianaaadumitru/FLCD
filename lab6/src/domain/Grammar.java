@@ -6,15 +6,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Grammar {
+    public static final String enrichedGrammarStartingSymbol = "S0";
     private final List<String> nonterminals;
     private final List<String> terminals;
+    boolean isEnriched;
     private ProductionSet productions;
     private String fileName;
     private String startSymbol;
     private Map<List<String>, List<List<String>>> productions2;
-
-    public static final String enrichedGrammarStartingSymbol = "S0";
-    boolean isEnriched;
 
     public Grammar(String fileName) {
         this.fileName = fileName;
@@ -117,7 +116,7 @@ public class Grammar {
             if (key.size() != 1) {
                 return false;
             }
-            for (var symbol: key) {
+            for (var symbol : key) {
                 if (!nonterminals.contains(symbol)) {
                     return false;
                 }
@@ -126,7 +125,7 @@ public class Grammar {
         // check if all rhs of productions appear in set of nonterminals or set of terminals
         for (var values : productions.getProductions().values()) {
             for (var value : values) {
-                for (var symbol: value) {
+                for (var symbol : value) {
                     if (!nonterminals.contains(symbol) && !terminals.contains(symbol))
                         return false;
                 }
