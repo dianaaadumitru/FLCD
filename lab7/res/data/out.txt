@@ -1,0 +1,18 @@
+ERROR at state 4 - before symbol b
+Row: stateIndex= 4, action='SHIFT', shifts = [(A, 6)]
+ERROR at state 4 - before symbol b
+Row: stateIndex= 4, action='SHIFT', shifts = [(A, 6)]
+ERROR at state 4 - before symbol b
+Row: stateIndex= 4, action='SHIFT', shifts = [(A, 6)]
+ERROR at state 0 - before symbol a
+Row: stateIndex= 0, action='SHIFT', shifts = [(S, 1)]
+ERROR at state 4 - before symbol c
+Row: stateIndex= 4, action='SHIFT', shifts = [(A, 6)]
+ERROR at state 4 - before symbol c
+Row: stateIndex= 4, action='SHIFT', shifts = [(A, 6)]
+ACCEPTED
+Production strings: [S -> [a, A]]
+Production number: [-1]
+ACCEPTED
+Production strings: [S -> [a, A], A -> [b, A]]
+Production number: [-1, -1]

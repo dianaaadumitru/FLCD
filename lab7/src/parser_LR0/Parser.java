@@ -2,11 +2,15 @@ package parser_LR0;
 
 import parsingTable.ParsingTable;
 import parsingTable.RowTable;
+import parsingTree.ParsingTree;
 import state.Item;
 import state.State;
 import state.StateType;
 import utils.Pair;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Parser {
@@ -81,7 +85,12 @@ public class Parser {
     public State goTo(State state, String element) {
         Set<Item> result = new LinkedHashSet<>();
         for (Item item : state.items) {
-            String nonTerminal = item.rhs.get(item.dotPosition);
+            String nonTerminal;
+            if (item.rhs.size() > item.dotPosition) {
+                nonTerminal = item.rhs.get(item.dotPosition);
+            } else {
+                nonTerminal = "";
+            }
             if (Objects.equals(nonTerminal, element)) {
                 Item nextItem = new Item(item.lhs, item.rhs, item.dotPosition + 1);
                 result.addAll(closure(nextItem).items);
@@ -181,6 +190,125 @@ public class Parser {
             parsingTable.entries.add(rowTable);
         }
         return parsingTable;
+    }
+
+    public void parse(Stack<String> inputStack, ParsingTable parsingTable, String filePath) throws IOException {
+        Stack<Pair<String, Integer>> workingStack = new Stack<>();
+        Stack<String> outputStack = new Stack<>();
+        Stack<Integer> outputNumberStack = new Stack<>();
+
+        String lastSymbol = "";
+        int stateIndex = 0;
+
+        boolean sem = true;
+
+        workingStack.push(new Pair<>(lastSymbol, stateIndex));
+        RowTable lastRow = null;
+        String onErrorSymbol = null;
+
+        try {
+            do{
+                if(!inputStack.isEmpty()){
+                    // We keep the symbol before which an error might occur
+                    onErrorSymbol = inputStack.peek();
+                }
+                // We update the last row from the table we worked with
+                lastRow = parsingTable.entries.get(stateIndex);
+
+                // We take a copy of the entry from the table and work on it
+                RowTable entry = parsingTable.entries.get(stateIndex);
+
+                System.out.println("entry: " + entry);
+
+                if(entry.action.equals(StateType.SHIFT)) {
+                    // If the action is shift, we pop from the input stack
+                    // We look at the last added state from the working stack
+                    // Look into the parsing table at that state, and find out
+                    // From it through what state, we can obtain the symbol popped from the input stack
+                    String symbol = inputStack.pop();
+                    Pair<String, Integer> state = entry.shifts.stream().filter(it -> it.getKey().equals(symbol)).findAny().orElse(null);
+
+                    System.out.println("state: " + state);
+
+                    if (state != null) {
+                        stateIndex = state.getValue();
+                        lastSymbol = symbol;
+                        workingStack.push(new Pair<>(lastSymbol, stateIndex));
+                    }
+                    else {
+                        throw new NullPointerException("Action is SHIFT but there are no matching states");
+                    }
+                } else if(entry.action.equals(StateType.REDUCE)){
+
+                    List<String> reduceContent = new ArrayList<>(entry.reduceContent);
+
+                    while(reduceContent.contains(workingStack.peek().getKey()) && !workingStack.isEmpty()){
+                        reduceContent.remove(workingStack.peek().getKey());
+                        workingStack.pop();
+                    }
+
+                    // We look into the row of the last state from the working stack
+                    // We look through the shift values and look for the one that corresponds to the reduceNonTerminal
+                    // Basically, we look through which state, from the current one, we can obtain that non-terminal
+                    Pair<String, Integer> state = parsingTable.entries.get(workingStack.peek().getValue()).shifts.stream()
+                            .filter(it -> it.getKey().equals(entry.reduceNonTerminal)).findAny().orElse(null);
+
+                    assert state != null;
+                    stateIndex = state.getValue();
+                    lastSymbol = entry.reduceNonTerminal;
+                    workingStack.push(new Pair<>(lastSymbol, stateIndex));
+
+                    outputStack.push(entry.reduceProductionString());
+
+                    // We "form" the production used for reduction and look for its production number
+                    var index = new Pair<>(entry.reduceNonTerminal, entry.reduceContent);
+                    int productionNumber = this.orderedProductions.indexOf(index);
+
+                    outputNumberStack.push(productionNumber);
+                } else {
+                    if(entry.action.equals(StateType.ACCEPT)){
+                        List<String> output = new ArrayList<>(outputStack);
+                        Collections.reverse(output);
+                        List<Integer> numberOutput = new ArrayList<>(outputNumberStack);
+                        Collections.reverse(numberOutput);
+
+                        System.out.println("ACCEPTED");
+                        writeToFile(filePath, "ACCEPTED");
+                        System.out.println("Production strings: " + output);
+                        writeToFile(filePath, "Production strings: " + output);
+                        System.out.println("Production number: " + numberOutput);
+                        writeToFile(filePath, "Production number: " + numberOutput);
+
+                        ParsingTree parsingTree = new ParsingTree(grammar);
+                        parsingTree.generateTreeFromSequence(numberOutput);
+                        System.out.println("The output tree: ");
+                        writeToFile(filePath, "The output tree: ");
+                        parsingTree.printTree(parsingTree.getRoot(), filePath);
+
+
+                        sem = false;
+                    }
+
+                }
+            } while(sem);
+        } catch (NullPointerException ex){
+            System.out.println("ERROR at state " + stateIndex + " - before symbol " + onErrorSymbol);
+            System.out.println(lastRow);
+
+            writeToFile(filePath, "ERROR at state " + stateIndex + " - before symbol " + onErrorSymbol);
+            writeToFile(filePath, lastRow.toString());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeToFile(String file, String line) throws IOException {
+        FileWriter fw = new FileWriter(file, true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(line);
+        bw.newLine();
+        bw.close();
     }
 }
 

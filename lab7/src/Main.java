@@ -4,8 +4,11 @@ import parser_LR0.Parser;
 import parsingTable.ParsingTable;
 import tests.Tests;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class Main {
     private static String menuGrammar() {
@@ -31,7 +34,7 @@ public class Main {
         return grammar.getProductionsForNonTerminal(nonterm);
     }
 
-    private static void getParsingTable(Parser parser) {
+    private static void getParsingTable(Parser parser) throws IOException {
         CanonicalCollection canonicalCollection = parser.canonicalCollection();
         ParsingTable parsingTable = parser.createParsingTable(canonicalCollection);
         if (parsingTable.entries.size() == 0) {
@@ -39,9 +42,18 @@ public class Main {
         } else {
             System.out.println(parsingTable);
         }
+
+        System.out.print("Parse given word: ");
+        Scanner scanner = new Scanner(System.in);
+        String word = scanner.next();
+        Stack<String> wordStack = new Stack<>();
+        if(word != null){
+            Arrays.stream(new StringBuilder(word).reverse().toString().split("")).forEach(wordStack::push);
+        }
+        parser.parse(wordStack, parsingTable, "res/data/out.txt");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Grammar grammar = new Grammar("./res/data/g3.txt");
         var parser = new Parser(grammar);
         Tests tests = new Tests();

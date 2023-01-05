@@ -9,7 +9,6 @@ type->arraydecl
 declaration->type identifier ;
 cmpstmt->{ stmtlist }
 stmtlist->statement
-stmtlist->statement ; stmtlist
 statement->simplestmt
 statement->structstmt
 structstmt->cmpstmt
@@ -19,14 +18,11 @@ structstmt->forstmt
 simplestmt->iostmt
 simplestmt->assignstmt
 assignstmt->identifier = expression
-expression->expression + term
 expression->term
-term->term * factor
 term->factor
 factor->( expression )
 factor->identifier
 ifstmt->if ( condition ) { statement }
-ifstmt->if ( condition ) { statement } else { statement }
 whilestmt->while ( condition ) { statement }
 forstmt->for ( assignstmt ; condition ; assignstmt ) { statement }
 outputvariables->identifier
