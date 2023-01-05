@@ -1,6 +1,7 @@
 package parser_LR0;
 
-import utils.ProductionSet;
+import utils.Pair;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,33 +13,21 @@ public class Grammar {
     private final List<String> nonterminals;
     private final List<String> terminals;
     boolean isEnriched;
-    private ProductionSet productions;
-    private String fileName;
     private String startSymbol;
-    private Map<List<String>, List<List<String>>> productions2;
+    private final Map<List<String>, List<List<String>>> productions;
 
     public Grammar(String fileName) {
-        this.fileName = fileName;
         this.nonterminals = new ArrayList<>();
         this.terminals = new ArrayList<>();
-        this.productions = new ProductionSet();
-        this.productions2 = new HashMap<>();
+        this.productions = new HashMap<>();
         readFromFile(fileName);
-    }
-
-    public Grammar(List<String> nonterminals, List<String> terminals, String startSymbol, ProductionSet productions) {
-        this.nonterminals = nonterminals;
-        this.terminals = terminals;
-        this.startSymbol = startSymbol;
-        this.productions = productions;
-        this.isEnriched = true;
     }
 
     public Grammar(List<String> nonTerminals, List<String> terminals, String startingSymbol, Map<List<String>, List<List<String>>> productions) {
         this.nonterminals = nonTerminals;
         this.terminals = terminals;
         this.startSymbol = startingSymbol;
-        this.productions2 = productions;
+        this.productions = productions;
         this.isEnriched = true;
     }
 
@@ -46,8 +35,8 @@ public class Grammar {
         return isEnriched;
     }
 
-    public Map<List<String>, List<List<String>>> getProductions2() {
-        return productions2;
+    public Map<List<String>, List<List<String>>> getProductions() {
+        return productions;
     }
 
     public String getStartSymbol() {
@@ -62,9 +51,6 @@ public class Grammar {
         return terminals;
     }
 
-    public ProductionSet getProductions() {
-        return productions;
-    }
 
     public void readFromFile(String file) {
         try {
@@ -81,11 +67,10 @@ public class Grammar {
                 var production = scanner.nextLine().split("->");
                 var lhs = Arrays.stream(production[0].trim().split(" ")).collect(Collectors.toList());
                 var rhs = Arrays.stream(production[1].trim().split(" ")).collect(Collectors.toList());
-                productions.addProduction(lhs, rhs);
-                if (!productions2.containsKey(lhs)) {
-                    productions2.put(lhs, new ArrayList<>());
+                if (!productions.containsKey(lhs)) {
+                    productions.put(lhs, new ArrayList<>());
                 }
-                productions2.get(lhs).add(rhs);
+                productions.get(lhs).add(rhs);
             }
 
             this.isEnriched = false;
@@ -94,14 +79,10 @@ public class Grammar {
         }
     }
 
-    public List<List<String>> productionForNonTerminal(String nonTerminal) {
-        return productions.getProductionsOf(nonTerminal);
-    }
-
     public boolean checkCFG() {
         // check if start symbol appears in lhs of productions
         boolean startSymbolExists = false;
-        for (var key : productions.getProductions().keySet()) {
+        for (var key : productions.keySet()) {
             for (var symbol : key) {
                 if (symbol.equals(startSymbol)) {
                     startSymbolExists = true;
@@ -113,8 +94,7 @@ public class Grammar {
             return false;
 
         // key that contains more than one word not ok
-        boolean contains = false;
-        for (var key : productions.getProductions().keySet()) {
+        for (var key : productions.keySet()) {
             if (key.size() != 1) {
                 return false;
             }
@@ -125,7 +105,7 @@ public class Grammar {
             }
         }
         // check if all rhs of productions appear in set of nonterminals or set of terminals
-        for (var values : productions.getProductions().values()) {
+        for (var values : productions.values()) {
             for (var value : values) {
                 for (var symbol : value) {
                     if (!nonterminals.contains(symbol) && !terminals.contains(symbol))
@@ -140,29 +120,27 @@ public class Grammar {
         if (isEnriched) {
             return this;
         }
-//        var newNonTerminals = new ArrayList<>(nonterminals);
-//        newNonTerminals.add(enrichedGrammarStartingSymbol);
-//        Grammar newGrammar = new Grammar(newNonTerminals, terminals, enrichedGrammarStartingSymbol, productions.copy());
-//        newGrammar.productions.addProduction(List.of(enrichedGrammarStartingSymbol), Collections.singletonList(startSymbol));
-//        return newGrammar;
 
-//        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions);
-//        enrichedGrammar.nonterminals.add(enrichedGrammarStartingSymbol);
-//        enrichedGrammar.productions.addProductionIfAbsent(List.of(enrichedGrammarStartingSymbol));
-//        enrichedGrammar.productions.getProductionsOf(List.of(enrichedGrammarStartingSymbol)).add(List.of(startSymbol));
-
-//        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions);
-
-        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions2);
+        Grammar enrichedGrammar = new Grammar(nonterminals, terminals, enrichedGrammarStartingSymbol, productions);
 
 
         enrichedGrammar.nonterminals.add(enrichedGrammarStartingSymbol);
-        enrichedGrammar.productions2.putIfAbsent(List.of(enrichedGrammarStartingSymbol), new ArrayList<>());
-        enrichedGrammar.productions2.get(List.of(enrichedGrammarStartingSymbol)).add(List.of(startSymbol));
+        enrichedGrammar.productions.putIfAbsent(List.of(enrichedGrammarStartingSymbol), new ArrayList<>());
+        enrichedGrammar.productions.get(List.of(enrichedGrammarStartingSymbol)).add(List.of(startSymbol));
         return enrichedGrammar;
     }
 
     public List<List<String>> getProductionsForNonTerminal(String nonTerminal) {
-        return productions2.get(List.of(nonTerminal));
+        return productions.get(List.of(nonTerminal));
+    }
+
+    public List<Pair<String, List<String>>> getOrderedProductions() {
+        List<Pair<String, List<String>>> orderedProductions = new ArrayList<>();
+        this.productions.forEach(
+                (lhs, rhs) -> rhs.forEach(
+                        (prod) -> orderedProductions.add(new Pair<>(lhs.get(0), prod))
+                )
+        );
+        return orderedProductions;
     }
 }

@@ -1,5 +1,7 @@
+import parser_LR0.CanonicalCollection;
 import parser_LR0.Grammar;
 import parser_LR0.Parser;
+import parsingTable.ParsingTable;
 import tests.Tests;
 
 import java.util.List;
@@ -15,7 +17,8 @@ public class Main {
         sb.append("4. Display the productions for a given nonterminal.\n");
         sb.append("5. Check if it is a CFG.\n");
         sb.append("6. LR(0).\n");
-        sb.append("7. Tests.\n");
+        sb.append("7. Parsing table.\n");
+        sb.append("8. Tests.\n");
         sb.append("0. Exit.\n");
 
         return sb.toString();
@@ -26,6 +29,17 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String nonterm = scanner.next();
         return grammar.getProductionsForNonTerminal(nonterm);
+    }
+
+    private static void getParsingTable(Parser parser) {
+        CanonicalCollection canonicalCollection = parser.canonicalCollection();
+        ParsingTable parsingTable = parser.createParsingTable(canonicalCollection);
+        if(parsingTable.entries.size() == 0){
+            System.out.println("We have conflicts in the parsing table so we can't go further with the algorithm");
+        }
+        else {
+            System.out.println(parsingTable);
+        }
     }
 
     public static void main(String[] args) {
@@ -45,7 +59,8 @@ public class Main {
                 case 4 -> System.out.println(displayProdForNonterminal(grammar));
                 case 5 -> System.out.println(grammar.checkCFG());
                 case 6 -> System.out.println(parser.canonicalCollection().states);
-                case 7 -> tests.runAllTests();
+                case 7 -> getParsingTable(parser);
+                case 8 -> tests.runAllTests();
 
                 case 0 -> done = true;
             }

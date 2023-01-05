@@ -32,7 +32,7 @@ public class Tests {
         Object[] result = parser.closure(new Item(
                 parser.getWorkingGrammar().getStartSymbol(),
                 parser.getWorkingGrammar().getProductionsForNonTerminal(parser.getGrammar().getStartSymbol()).get(0),
-                0)).getItems().toArray();
+                0)).items.toArray();
         assert result.length == 1;
         assert Objects.equals(result[0], new Item("S0", List.of("a", "A"), 0));
         System.out.println("Closure test 1 successful");
@@ -45,7 +45,7 @@ public class Tests {
         Object[] result = parser.closure(new Item(
                 parser.getWorkingGrammar().getStartSymbol(),
                 parser.getWorkingGrammar().getProductionsForNonTerminal(parser.getGrammar().getStartSymbol()).get(0),
-                0)).getItems().toArray();
+                0)).items.toArray();
         assert result.length == 1;
         assert Objects.equals(result[0], new Item("S0", List.of("a"), 0));
         System.out.println("Closure test 2 successful");
@@ -58,7 +58,7 @@ public class Tests {
         Object[] result = parser.closure(new Item(
                 parser.getWorkingGrammar().getStartSymbol(),
                 parser.getWorkingGrammar().getProductionsForNonTerminal(parser.getGrammar().getStartSymbol()).get(0),
-                0)).getItems().toArray();
+                0)).items.toArray();
         assert result.length == 3;
         assert Objects.equals(result[1], new Item("A", List.of("S"), 0));
         System.out.println("Closure test 3 successful");
@@ -73,8 +73,8 @@ public class Tests {
                 parser.getWorkingGrammar().getProductionsForNonTerminal(parser.getGrammar().getStartSymbol()).get(0),
                 0));
         State result = parser.goTo(state, state.getSymbolsSucceedingTheDot().get(0));
-        assert result.getItems().size() == 2;
-        assert Objects.equals(result.getItems().toArray()[1], new Item("A", List.of("a", "b"), 0));
+        assert result.items.size() == 2;
+        assert Objects.equals(result.items.toArray()[1], new Item("A", List.of("a", "b"), 0));
         System.out.println("Go To Test 1 Successful");
     }
 
@@ -87,8 +87,8 @@ public class Tests {
                 parser.getWorkingGrammar().getProductionsForNonTerminal(parser.getGrammar().getStartSymbol()).get(0),
                 0));
         State result = parser.goTo(state, state.getSymbolsSucceedingTheDot().get(0));
-        assert result.getItems().size() == 1;
-        assert Objects.equals(result.getItems().toArray()[1], new Item("S0", List.of("a"), 1));
+        assert result.items.size() == 1;
+        assert Objects.equals(result.items.toArray()[1], new Item("S0", List.of("a"), 1));
         System.out.println("Go To Test 2 Successful");
     }
 
@@ -97,7 +97,7 @@ public class Tests {
         parser = new Parser(grammar);
         List<State> result = parser.canonicalCollection().getStates();
         assert result.size() == 6;
-        assert Objects.equals(result.get(result.size() - 1).getItems().toArray()[0], new Item("A", List.of("a", "b"), 2));
+        assert Objects.equals(result.get(result.size() - 1).items.toArray()[0], new Item("A", List.of("a", "b"), 2));
         System.out.println("Canonical Test 1 Successful");
     }
 
@@ -106,7 +106,7 @@ public class Tests {
         parser = new Parser(grammar);
         List<State> result = parser.canonicalCollection().getStates();
         assert result.size() == 1;
-        assert Objects.equals(result.get(0).getItems().toArray()[0], new Item("A", List.of("a"), 1));
+        assert Objects.equals(result.get(0).items.toArray()[0], new Item("A", List.of("a"), 1));
         System.out.println("Canonical Test 2 Successful");
     }
 }

@@ -1,6 +1,9 @@
 package parser_LR0;
 
+import parsingTable.ParsingTable;
+import parsingTable.RowTable;
 import state.Item;
+import state.StateType;
 import utils.Pair;
 import state.State;
 
@@ -24,7 +27,7 @@ public class Parser {
             this.workingGrammar = this.grammar.getEnrichedGrammar();
         }
 
-        orderedProductions = this.grammar.getProductions().getOrderedProductions();
+        orderedProductions = this.grammar.getOrderedProductions();
     }
 
     public Grammar getGrammar() {
@@ -70,7 +73,7 @@ public class Parser {
             }
             currentClosure = newClosure;
 
-        } while (!oldClosure.equals(currentClosure));
+        } while (!currentClosure.equals(oldClosure));
 
         return new State(currentClosure);
     }
@@ -89,37 +92,27 @@ public class Parser {
 
     public CanonicalCollection canonicalCollection() {
         CanonicalCollection canonicalCollection = new CanonicalCollection();
-//        canonicalCollection.addState(
-//                closure(
-//                        new Item(
-//                                workingGrammar.getStartSymbol(),
-//                                workingGrammar.getProductions().getProductionsOf(workingGrammar.getStartSymbol()).get(0),
-//                                0)
-//                )
-//        );
+        Item item = new Item(
+                workingGrammar.getStartSymbol(),
+                workingGrammar.getProductionsForNonTerminal(workingGrammar.getStartSymbol()).get(0),
+                0);
 
-        canonicalCollection.addState(
-                closure(
-                        new Item(
-                                workingGrammar.getStartSymbol(),
-                                workingGrammar.getProductionsForNonTerminal(workingGrammar.getStartSymbol()).get(0),
-                                0)
-                )
-        );
+        canonicalCollection.addState(closure(item));
 
         int i = 0;
         while (i < canonicalCollection.states.size()) {
             for (String symbol : canonicalCollection.states.get(i).getSymbolsSucceedingTheDot()) {
                 State newState = goTo(canonicalCollection.states.get(i), symbol);
-
-                if (newState.getItems().size() != 0) {
+                if (newState.items.size() != 0) {
                     int indexInStates = canonicalCollection.states.indexOf(newState);
                     if (indexInStates == -1) {
                         canonicalCollection.addState(newState);
+                        indexInStates = canonicalCollection.states.size() - 1;
                     }
+                    canonicalCollection.connectStates(i, symbol, indexInStates);
                 }
             }
-            i++;
+            ++i;
         }
         return canonicalCollection;
     }
@@ -130,6 +123,64 @@ public class Parser {
                 return true;
         }
         return false;
+    }
+
+    public ParsingTable createParsingTable(CanonicalCollection canonicalCollection) {
+        ParsingTable parsingTable = new ParsingTable();
+
+        for (int i = 0; i < canonicalCollection.states.size(); i++) {
+            //create new entry for table
+            RowTable rowTable = new RowTable();
+
+            // get the current state
+            State state = canonicalCollection.getStates().get(i);
+
+            // set the state index
+            rowTable.stateIndex = i;
+            // set the action of the state
+            rowTable.action = state.stateType;
+
+            rowTable.shifts = new ArrayList<>();
+
+            // if there are conflicts the algorithm is stopped => it is not LR(0)
+            if (state.stateType == StateType.SHIFT_REDUCE_CONFLICT || state.stateType == StateType.REDUCE_REDUCE_CONFLICT) {
+                for (Map.Entry<Pair<Integer, String>, Integer> e2 : canonicalCollection.getAdjacencyList().entrySet()) {
+                    Pair<Integer, String> k2 = e2.getKey();
+                    Integer v2 = e2.getValue();
+
+                    if (v2.equals(rowTable.stateIndex)) {
+                        System.out.println("state index: " + rowTable.stateIndex);
+                        System.out.println("symbol " + k2.getValue());
+                        System.out.println("( " + k2.getValue() + ", " + k2.getKey() + " )" + " -> " + rowTable.stateIndex);
+                        System.out.println("state " + state);
+
+                        break;
+                    }
+                }
+                parsingTable.entries = new ArrayList<>();
+                return parsingTable;
+            } else if (state.stateType == StateType.ACCEPT) {
+                rowTable.shifts = null;
+            } else if (state.stateType == StateType.REDUCE) {
+                Item item = state.items.stream().filter(it -> it.dotPosition == it.rhs.size()).findAny().orElse(null);
+                if (item != null) {
+                    rowTable.shifts = null;
+                    rowTable.reduceNonTerminal = item.lhs;
+                    rowTable.reduceContent = item.rhs;
+                }
+            } else { // shift
+                List<Pair<String, Integer>> goTos = new ArrayList<>();
+                for (Map.Entry<Pair<Integer, String>, Integer> entry : canonicalCollection.getAdjacencyList().entrySet()) {
+                    Pair<Integer, String> key = entry.getKey();
+                    if(key.getKey() == rowTable.stateIndex){
+                        goTos.add(new Pair<>(key.getValue(), entry.getValue()));
+                    }
+                }
+                rowTable.shifts = goTos;
+            }
+            parsingTable.entries.add(rowTable);
+        }
+        return parsingTable;
     }
 }
 
