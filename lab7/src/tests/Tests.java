@@ -1,9 +1,9 @@
 package tests;
 
-import state.Item;
-import state.State;
 import parser_LR0.Grammar;
 import parser_LR0.Parser;
+import state.Item;
+import state.State;
 
 import java.util.List;
 import java.util.Objects;

@@ -2,7 +2,6 @@ package parser_LR0;
 
 import utils.Pair;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -12,9 +11,9 @@ public class Grammar {
     public static final String enrichedGrammarStartingSymbol = "S0";
     private final List<String> nonterminals;
     private final List<String> terminals;
+    private final Map<List<String>, List<List<String>>> productions;
     boolean isEnriched;
     private String startSymbol;
-    private final Map<List<String>, List<List<String>>> productions;
 
     public Grammar(String fileName) {
         this.nonterminals = new ArrayList<>();

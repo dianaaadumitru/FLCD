@@ -3,9 +3,9 @@ package parser_LR0;
 import parsingTable.ParsingTable;
 import parsingTable.RowTable;
 import state.Item;
+import state.State;
 import state.StateType;
 import utils.Pair;
-import state.State;
 
 import java.util.*;
 
@@ -172,7 +172,7 @@ public class Parser {
                 List<Pair<String, Integer>> goTos = new ArrayList<>();
                 for (Map.Entry<Pair<Integer, String>, Integer> entry : canonicalCollection.getAdjacencyList().entrySet()) {
                     Pair<Integer, String> key = entry.getKey();
-                    if(key.getKey() == rowTable.stateIndex){
+                    if (key.getKey() == rowTable.stateIndex) {
                         goTos.add(new Pair<>(key.getValue(), entry.getValue()));
                     }
                 }

@@ -18,12 +18,12 @@ public class RowTable {
 
     public List<Pair<String, Integer>> shifts = new ArrayList<>();
 
-    public String reduceProductionString(){
+    public String reduceProductionString() {
         return this.reduceNonTerminal + " -> " + this.reduceContent;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Row: " +
                 "stateIndex= " + stateIndex +
                 ", action='" + action + '\'' +

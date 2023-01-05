@@ -34,10 +34,9 @@ public class Main {
     private static void getParsingTable(Parser parser) {
         CanonicalCollection canonicalCollection = parser.canonicalCollection();
         ParsingTable parsingTable = parser.createParsingTable(canonicalCollection);
-        if(parsingTable.entries.size() == 0){
-            System.out.println("We have conflicts in the parsing table so we can't go further with the algorithm");
-        }
-        else {
+        if (parsingTable.entries.size() == 0) {
+            System.out.println("We have conflicts in the parsing table");
+        } else {
             System.out.println(parsingTable);
         }
     }

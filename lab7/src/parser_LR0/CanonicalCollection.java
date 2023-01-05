@@ -1,7 +1,7 @@
 package parser_LR0;
 
-import utils.Pair;
 import state.State;
+import utils.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class CanonicalCollection {
         this.states.add(states.size(), state);
     }
 
-    public void connectStates(Integer indexFirstState, String symbol, Integer indexSecondState){
+    public void connectStates(Integer indexFirstState, String symbol, Integer indexSecondState) {
         this.adjacencyList.put(new Pair<>(indexFirstState, symbol), indexSecondState);
     }
 
