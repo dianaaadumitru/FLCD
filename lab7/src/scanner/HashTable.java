@@ -6,12 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HashTable<T> {
-    private int size;
-
-    private List<List<T>> items;
-
     private final double loadFactor = 0.7;
-
+    private int size;
+    private List<List<T>> items;
     private int actualSize;
 
     public HashTable(int size) {
@@ -50,7 +47,7 @@ public class HashTable<T> {
     public Pair<Integer, Integer> getPosition(T key) {
         int listPos = hash(key);
         int index = 0;
-        for (T item: items.get(listPos)) {
+        for (T item : items.get(listPos)) {
             if (item == key) {
                 return new Pair<>(listPos, index);
             }
@@ -73,8 +70,8 @@ public class HashTable<T> {
             items.add(new ArrayList<>());
         }
         actualSize = 0;
-        for (List<T> item: oldItems) {
-            for (T key: item) {
+        for (List<T> item : oldItems) {
+            for (T key : item) {
                 this.addToHT(key);
             }
         }

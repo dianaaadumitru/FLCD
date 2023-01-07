@@ -1,7 +1,4 @@
-Func  {
-	number ab; @
-	number ba;
-
+Func {
 	read(a);
 	read(b);
 

@@ -1,0 +1,2 @@
+ERROR at state 3 - before symbol number
+Row: stateIndex= 3, action='SHIFT', shifts = [(simplestmt, 4), (statement, 15), (if, 20), (structstmt, 17), (write, 19), (cmpstmt, 8), (identifier, 5), (whilestmt, 13), (iostmt, 12), (assignstmt, 16), (read, 6), (ifstmt, 7), (stmtlist, 10), (forstmt, 14), ({, 18), (for, 9), (while, 11)]

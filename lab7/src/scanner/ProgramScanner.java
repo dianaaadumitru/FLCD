@@ -5,7 +5,8 @@ import utils.Pair;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,7 +93,6 @@ public class ProgramScanner {
         Matcher matcher = idRegex.matcher(program.substring(index));
         if (matcher.find()) {
             String token = matcher.group(1);
-            System.out.println("Found identifier: " + token);
             Pair<Integer, Integer> pair = symbolTable.addToST(token);
             if (pair.getKey() != -1) {
                 pif.add(new Pair<>(token, pair));
@@ -129,7 +129,7 @@ public class ProgramScanner {
         }
     }
 
-    public void writeToSTFile (String filename) throws IOException {
+    public void writeToSTFile(String filename) throws IOException {
         FileWriter writer = new FileWriter(filename);
         writer.write(symbolTable.toString());
         writer.close();

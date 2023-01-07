@@ -1,12 +1,11 @@
 import exceptions.ScannerException;
-import scanner.ProgramScanner;
 import parser_LR0.CanonicalCollection;
 import parser_LR0.Grammar;
 import parser_LR0.Parser;
 import parsingTable.ParsingTable;
+import scanner.ProgramScanner;
 import tests.Tests;
 
-import javax.crypto.spec.PSource;
 import java.io.*;
 import java.util.*;
 
@@ -28,7 +27,7 @@ public class Main {
         return sb.toString();
     }
 
-    private static String menuParser(){
+    private static String menuParser() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n1. Parse p1.txt\n");
         sb.append("2. Parse p2.txt\n");
@@ -45,7 +44,40 @@ public class Main {
         return grammar.getProductionsForNonTerminal(nonterm);
     }
 
+    private static void emptyFile(String file) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        writer.print("");
+        writer.close();
+    }
+
+    private static Stack<String> readFirstElemFromFile(String filename) {
+        BufferedReader reader;
+        Stack<String> wordStack = new Stack<String>();
+        ArrayList<String> normal = new ArrayList<>();
+        try {
+            reader = new BufferedReader(new FileReader(filename));
+            String line = reader.readLine();
+            while (line != null) {
+                String[] split = line.split("\\s+");
+                normal.add(split[0]);
+                line = reader.readLine();
+            }
+            for (int i = normal.size() - 1; i >= 0; i--) {
+                wordStack.add(normal.get(i));
+            }
+            return wordStack;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static void getParsingTreeForG1() throws IOException {
+        emptyFile("res/data/out1.txt");
         Grammar grammar = new Grammar("./res/data/g3.txt");
         Parser parser = new Parser(grammar);
         CanonicalCollection canonicalCollection = parser.canonicalCollection();
@@ -122,27 +154,45 @@ public class Main {
             switch (choice) {
                 case 1 -> {
                     ProgramScanner programScanner = createProgramScanner("res/data/p1.txt");
+                    emptyFile("res/data/out2.txt");
+                    emptyFile("res/data/p1PIF.txt");
                     try {
                         programScanner.scan();
                         programScanner.writeToPIFFile("res/data/p1PIF.txt");
+
+                        Stack<String> wordStack = readFirstElemFromFile("res/data/p1PIF.txt");
+
+                        parser.parse(wordStack, parsingTable, "res/data/out2.txt");
                     } catch (ScannerException | IOException e) {
                         e.printStackTrace();
                     }
                 }
                 case 2 -> {
                     ProgramScanner programScanner = createProgramScanner("res/data/p2.txt");
+                    emptyFile("res/data/out2.txt");
+                    emptyFile("res/data/p2PIF.txt");
                     try {
                         programScanner.scan();
                         programScanner.writeToPIFFile("res/data/p2PIF.txt");
+
+                        Stack<String> wordStack = readFirstElemFromFile("res/data/p2PIF.txt");
+
+                        parser.parse(wordStack, parsingTable, "res/data/out2.txt");
                     } catch (ScannerException | IOException e) {
                         e.printStackTrace();
                     }
                 }
                 case 3 -> {
                     ProgramScanner programScanner = createProgramScanner("res/data/p3.txt");
+                    emptyFile("res/data/out2.txt");
+                    emptyFile("res/data/p3PIF.txt");
                     try {
                         programScanner.scan();
                         programScanner.writeToPIFFile("res/data/p3PIF.txt");
+
+                        Stack<String> wordStack = readFirstElemFromFile("res/data/p3PIF.txt");
+
+                        parser.parse(wordStack, parsingTable, "res/data/out2.txt");
                     } catch (ScannerException | IOException e) {
                         e.printStackTrace();
                     }

@@ -80,8 +80,12 @@ public class Parser {
     public State goTo(State state, String element) {
         Set<Item> result = new LinkedHashSet<>();
         for (Item item : state.items) {
-            String nonTerminal = item.rhs.get(item.dotPosition);
-            ;
+            String nonTerminal;
+            if (item.dotPosition >= item.rhs.size()) {
+                nonTerminal = "";
+            } else {
+                nonTerminal = item.rhs.get(item.dotPosition);
+            }
 
             if (Objects.equals(nonTerminal, element)) {
                 Item nextItem = new Item(item.lhs, item.rhs, item.dotPosition + 1);
