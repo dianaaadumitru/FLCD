@@ -1,16 +1,14 @@
+import exceptions.ScannerException;
+import scanner.ProgramScanner;
 import parser_LR0.CanonicalCollection;
 import parser_LR0.Grammar;
 import parser_LR0.Parser;
 import parsingTable.ParsingTable;
 import tests.Tests;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
+import javax.crypto.spec.PSource;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     private static String menuGrammar() {
@@ -25,6 +23,16 @@ public class Main {
         sb.append("7. Parsing tree for g1.\n");
         sb.append("8. Parsing tree for g2.\n");
         sb.append("9. Tests.\n");
+        sb.append("0. Exit.\n");
+
+        return sb.toString();
+    }
+
+    private static String menuParser(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n1. Parse p1.txt\n");
+        sb.append("2. Parse p2.txt\n");
+        sb.append("3. Parse p3.txt\n");
         sb.append("0. Exit.\n");
 
         return sb.toString();
@@ -63,6 +71,37 @@ public class Main {
         parser.parse(wordStack, parsingTable, "res/data/out1.txt");
     }
 
+    private static ProgramScanner createProgramScanner(String filename) {
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File(filename));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StringBuilder program = new StringBuilder();
+        while (scanner.hasNextLine()) {
+            program.append(scanner.nextLine()).append('\n');
+        }
+        scanner.close();
+
+        Scanner scannerTokens = null;
+        try {
+            scannerTokens = new Scanner(new File("res/data/token.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        List<String> tokens = new ArrayList<>();
+
+        while (true) {
+            assert scannerTokens != null;
+            if (!scannerTokens.hasNextLine()) break;
+            tokens.add(scannerTokens.nextLine());
+        }
+        scannerTokens.close();
+
+        return new ProgramScanner(program.toString(), tokens);
+    }
+
     private static void getParsingTreeForG2() {
         Grammar grammar = new Grammar("./res/data/g2.txt");
         Parser parser = new Parser(grammar);
@@ -72,6 +111,45 @@ public class Main {
             System.out.println("We have conflicts in the parsing table");
         } else {
             System.out.println(parsingTable);
+        }
+
+        boolean done = false;
+        while (!done) {
+            System.out.println(menuParser());
+            System.out.print(">>");
+            Scanner scanner = new Scanner(System.in);
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1 -> {
+                    ProgramScanner programScanner = createProgramScanner("res/data/p1.txt");
+                    try {
+                        programScanner.scan();
+                        programScanner.writeToPIFFile("res/data/p1PIF.txt");
+                    } catch (ScannerException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                case 2 -> {
+                    ProgramScanner programScanner = createProgramScanner("res/data/p2.txt");
+                    try {
+                        programScanner.scan();
+                        programScanner.writeToPIFFile("res/data/p2PIF.txt");
+                    } catch (ScannerException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                case 3 -> {
+                    ProgramScanner programScanner = createProgramScanner("res/data/p3.txt");
+                    try {
+                        programScanner.scan();
+                        programScanner.writeToPIFFile("res/data/p3PIF.txt");
+                    } catch (ScannerException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                case 0 -> done = true;
+            }
         }
     }
 
