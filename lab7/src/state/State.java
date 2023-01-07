@@ -2,10 +2,7 @@ package state;
 
 import parser_LR0.Grammar;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class State {
     public final Set<Item> items;
@@ -38,5 +35,18 @@ public class State {
     @Override
     public String toString() {
         return String.format("%s", items);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        State state = (State) o;
+        return Objects.equals(items, state.items) && stateType == state.stateType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(items, stateType);
     }
 }

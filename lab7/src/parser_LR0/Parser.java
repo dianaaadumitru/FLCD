@@ -17,13 +17,10 @@ public class Parser {
     private final Grammar grammar;
     private final Grammar workingGrammar;
 
-    private final Set<Item> allItems;
-
     private final List<Pair<String, List<String>>> orderedProductions;
 
     public Parser(Grammar grammar) {
         this.grammar = grammar;
-        this.allItems = new HashSet<>();
 
         if (this.grammar.isEnriched()) {
             this.workingGrammar = this.grammar;
@@ -65,19 +62,17 @@ public class Parser {
             Set<Item> newClosure = new LinkedHashSet<>(currentClosure);
             for (Item i : currentClosure) {
                 String nonTerminal = getDotPrecededNonTerminal(i);
-                if (nonTerminal != null) {
-                    for (List<String> prod : grammar.getProductionsForNonTerminal(nonTerminal)) {
-                        Item currentItem = new Item(nonTerminal, prod, 0);
-                        if (!containsItem(allItems, currentItem)) {
-                            newClosure.add(currentItem);
-                            allItems.add(currentItem);
-                        }
-                    }
+                if (nonTerminal == null)
+                    continue;
+
+                for (List<String> prod : grammar.getProductionsForNonTerminal(nonTerminal)) {
+                    Item currentItem = new Item(nonTerminal, prod, 0);
+                    newClosure.add(currentItem);
                 }
             }
             currentClosure = newClosure;
 
-        } while (!currentClosure.equals(oldClosure));
+        } while (!oldClosure.equals(currentClosure));
 
         return new State(currentClosure);
     }
@@ -85,15 +80,13 @@ public class Parser {
     public State goTo(State state, String element) {
         Set<Item> result = new LinkedHashSet<>();
         for (Item item : state.items) {
-            String nonTerminal;
-            if (item.rhs.size() > item.dotPosition) {
-                nonTerminal = item.rhs.get(item.dotPosition);
-            } else {
-                nonTerminal = "";
-            }
+            String nonTerminal = item.rhs.get(item.dotPosition);
+            ;
+
             if (Objects.equals(nonTerminal, element)) {
                 Item nextItem = new Item(item.lhs, item.rhs, item.dotPosition + 1);
-                result.addAll(closure(nextItem).items);
+                State newState = closure(nextItem);
+                result.addAll(newState.items);
             }
         }
         return new State(result);
@@ -123,15 +116,8 @@ public class Parser {
             }
             ++i;
         }
-        return canonicalCollection;
-    }
 
-    private boolean containsItem(Set<Item> closureList, Item item) {
-        for (Item it : closureList) {
-            if (it.equals(item))
-                return true;
-        }
-        return false;
+        return canonicalCollection;
     }
 
     public ParsingTable createParsingTable(CanonicalCollection canonicalCollection) {
@@ -193,34 +179,31 @@ public class Parser {
     }
 
     public void parse(Stack<String> inputStack, ParsingTable parsingTable, String filePath) throws IOException {
-        Stack<Pair<String, Integer>> workingStack = new Stack<>();
+        Stack<Pair<String, Integer>> workStack = new Stack<>();
         Stack<String> outputStack = new Stack<>();
-        Stack<Integer> outputNumberStack = new Stack<>();
+        Stack<Integer> outputBand = new Stack<>();
 
         String lastSymbol = "";
         int stateIndex = 0;
 
         boolean sem = true;
 
-        workingStack.push(new Pair<>(lastSymbol, stateIndex));
+        workStack.push(new Pair<>(lastSymbol, stateIndex));
         RowTable lastRow = null;
         String onErrorSymbol = null;
 
         try {
-            do{
-                if(!inputStack.isEmpty()){
+            do {
+                if (!inputStack.isEmpty()) {
                     // We keep the symbol before which an error might occur
                     onErrorSymbol = inputStack.peek();
                 }
                 // We update the last row from the table we worked with
                 lastRow = parsingTable.entries.get(stateIndex);
 
-                // We take a copy of the entry from the table and work on it
                 RowTable entry = parsingTable.entries.get(stateIndex);
 
-                System.out.println("entry: " + entry);
-
-                if(entry.action.equals(StateType.SHIFT)) {
+                if (entry.action.equals(StateType.SHIFT)) {
                     // If the action is shift, we pop from the input stack
                     // We look at the last added state from the working stack
                     // Look into the parsing table at that state, and find out
@@ -228,35 +211,32 @@ public class Parser {
                     String symbol = inputStack.pop();
                     Pair<String, Integer> state = entry.shifts.stream().filter(it -> it.getKey().equals(symbol)).findAny().orElse(null);
 
-                    System.out.println("state: " + state);
-
                     if (state != null) {
                         stateIndex = state.getValue();
                         lastSymbol = symbol;
-                        workingStack.push(new Pair<>(lastSymbol, stateIndex));
+                        workStack.push(new Pair<>(lastSymbol, stateIndex));
+                    } else {
+                        throw new NullPointerException();
                     }
-                    else {
-                        throw new NullPointerException("Action is SHIFT but there are no matching states");
-                    }
-                } else if(entry.action.equals(StateType.REDUCE)){
+                } else if (entry.action.equals(StateType.REDUCE)) {
 
                     List<String> reduceContent = new ArrayList<>(entry.reduceContent);
 
-                    while(reduceContent.contains(workingStack.peek().getKey()) && !workingStack.isEmpty()){
-                        reduceContent.remove(workingStack.peek().getKey());
-                        workingStack.pop();
+                    while (reduceContent.contains(workStack.peek().getKey()) && !workStack.isEmpty()) {
+                        reduceContent.remove(workStack.peek().getKey());
+                        workStack.pop();
                     }
 
                     // We look into the row of the last state from the working stack
                     // We look through the shift values and look for the one that corresponds to the reduceNonTerminal
                     // Basically, we look through which state, from the current one, we can obtain that non-terminal
-                    Pair<String, Integer> state = parsingTable.entries.get(workingStack.peek().getValue()).shifts.stream()
+                    Pair<String, Integer> state = parsingTable.entries.get(workStack.peek().getValue()).shifts.stream()
                             .filter(it -> it.getKey().equals(entry.reduceNonTerminal)).findAny().orElse(null);
 
                     assert state != null;
                     stateIndex = state.getValue();
                     lastSymbol = entry.reduceNonTerminal;
-                    workingStack.push(new Pair<>(lastSymbol, stateIndex));
+                    workStack.push(new Pair<>(lastSymbol, stateIndex));
 
                     outputStack.push(entry.reduceProductionString());
 
@@ -264,12 +244,12 @@ public class Parser {
                     var index = new Pair<>(entry.reduceNonTerminal, entry.reduceContent);
                     int productionNumber = this.orderedProductions.indexOf(index);
 
-                    outputNumberStack.push(productionNumber);
+                    outputBand.push(productionNumber);
                 } else {
-                    if(entry.action.equals(StateType.ACCEPT)){
+                    if (entry.action.equals(StateType.ACCEPT)) {
                         List<String> output = new ArrayList<>(outputStack);
                         Collections.reverse(output);
-                        List<Integer> numberOutput = new ArrayList<>(outputNumberStack);
+                        List<Integer> numberOutput = new ArrayList<>(outputBand);
                         Collections.reverse(numberOutput);
 
                         System.out.println("ACCEPTED");
@@ -290,8 +270,8 @@ public class Parser {
                     }
 
                 }
-            } while(sem);
-        } catch (NullPointerException ex){
+            } while (sem);
+        } catch (NullPointerException ex) {
             System.out.println("ERROR at state " + stateIndex + " - before symbol " + onErrorSymbol);
             System.out.println(lastRow);
 

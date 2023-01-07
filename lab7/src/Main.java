@@ -4,6 +4,8 @@ import parser_LR0.Parser;
 import parsingTable.ParsingTable;
 import tests.Tests;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +22,9 @@ public class Main {
         sb.append("4. Display the productions for a given nonterminal.\n");
         sb.append("5. Check if it is a CFG.\n");
         sb.append("6. LR(0).\n");
-        sb.append("7. Parsing table.\n");
-        sb.append("8. Tests.\n");
+        sb.append("7. Parsing tree for g1.\n");
+        sb.append("8. Parsing tree for g2.\n");
+        sb.append("9. Tests.\n");
         sb.append("0. Exit.\n");
 
         return sb.toString();
@@ -34,7 +37,9 @@ public class Main {
         return grammar.getProductionsForNonTerminal(nonterm);
     }
 
-    private static void getParsingTable(Parser parser) throws IOException {
+    private static void getParsingTreeForG1() throws IOException {
+        Grammar grammar = new Grammar("./res/data/g3.txt");
+        Parser parser = new Parser(grammar);
         CanonicalCollection canonicalCollection = parser.canonicalCollection();
         ParsingTable parsingTable = parser.createParsingTable(canonicalCollection);
         if (parsingTable.entries.size() == 0) {
@@ -43,24 +48,41 @@ public class Main {
             System.out.println(parsingTable);
         }
 
-        System.out.print("Parse given word: ");
-        Scanner scanner = new Scanner(System.in);
-        String word = scanner.next();
+        BufferedReader reader;
         Stack<String> wordStack = new Stack<>();
-        if(word != null){
-            Arrays.stream(new StringBuilder(word).reverse().toString().split("")).forEach(wordStack::push);
+        try {
+            reader = new BufferedReader(new FileReader("res/data/seq.txt"));
+            String line = reader.readLine();
+            if (line != null) {
+                Arrays.stream(new StringBuilder(line).reverse().toString().split("")).forEach(wordStack::push);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        parser.parse(wordStack, parsingTable, "res/data/out.txt");
+
+        parser.parse(wordStack, parsingTable, "res/data/out1.txt");
+    }
+
+    private static void getParsingTreeForG2() {
+        Grammar grammar = new Grammar("./res/data/g2.txt");
+        Parser parser = new Parser(grammar);
+        CanonicalCollection canonicalCollection = parser.canonicalCollection();
+        ParsingTable parsingTable = parser.createParsingTable(canonicalCollection);
+        if (parsingTable.entries.size() == 0) {
+            System.out.println("We have conflicts in the parsing table");
+        } else {
+            System.out.println(parsingTable);
+        }
     }
 
     public static void main(String[] args) throws IOException {
         Grammar grammar = new Grammar("./res/data/g3.txt");
-        var parser = new Parser(grammar);
+        Parser parser = new Parser(grammar);
         Tests tests = new Tests();
         boolean done = false;
         while (!done) {
             System.out.println(menuGrammar());
-            System.out.println(">>");
+            System.out.print(">>");
             Scanner scanner = new Scanner(System.in);
             int choice = scanner.nextInt();
             switch (choice) {
@@ -70,8 +92,9 @@ public class Main {
                 case 4 -> System.out.println(displayProdForNonterminal(grammar));
                 case 5 -> System.out.println(grammar.checkCFG());
                 case 6 -> System.out.println(parser.canonicalCollection().states);
-                case 7 -> getParsingTable(parser);
-                case 8 -> tests.runAllTests();
+                case 7 -> getParsingTreeForG1();
+                case 8 -> getParsingTreeForG2();
+                case 9 -> tests.runAllTests();
 
                 case 0 -> done = true;
             }

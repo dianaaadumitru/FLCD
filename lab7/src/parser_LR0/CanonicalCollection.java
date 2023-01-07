@@ -3,10 +3,7 @@ package parser_LR0;
 import state.State;
 import utils.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CanonicalCollection {
     public final List<State> states;
@@ -37,5 +34,18 @@ public class CanonicalCollection {
 
     public Map<Pair<Integer, String>, Integer> getAdjacencyList() {
         return this.adjacencyList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CanonicalCollection that = (CanonicalCollection) o;
+        return Objects.equals(states, that.states) && Objects.equals(adjacencyList, that.adjacencyList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(states, adjacencyList);
     }
 }

@@ -14,9 +14,18 @@ public class Item {
         this.dotPosition = dotPosition;
     }
 
+
     @Override
-    public boolean equals(Object item) {
-        return item instanceof Item && Objects.equals(((Item) item).lhs, this.lhs) && ((Item) item).rhs == rhs && Objects.equals(((Item) item).dotPosition, this.dotPosition);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return dotPosition == item.dotPosition && Objects.equals(lhs, item.lhs) && Objects.equals(rhs, item.rhs);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lhs, rhs, dotPosition);
     }
 
     @Override
