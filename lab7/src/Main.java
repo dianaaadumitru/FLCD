@@ -204,7 +204,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        Grammar grammar = new Grammar("./res/data/g3.txt");
+        Grammar grammar = new Grammar("./res/data/g2.txt");
         Parser parser = new Parser(grammar);
         Tests tests = new Tests();
         boolean done = false;

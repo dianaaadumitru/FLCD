@@ -77,7 +77,6 @@ public class ParsingTree {
 
             // Then we call the recursion again in order to set the right sibling
             node.setRightSibling(buildRecursive(level, parent, newList, inputSequence));
-            System.out.println("node: " + node);
             return node;
         }
         // If the symbol is a non-terminal, then it means it may have a right sibling,
