@@ -57,19 +57,27 @@ public class Main {
 
     private static Stack<String> readFirstElemFromFile(String filename) {
         BufferedReader reader;
-        Stack<String> wordStack = new Stack<String>();
+        Stack<String> wordStack = new Stack<>();
         ArrayList<String> normal = new ArrayList<>();
         try {
             reader = new BufferedReader(new FileReader(filename));
             String line = reader.readLine();
             while (line != null) {
                 String[] split = line.split("\\s+");
-                normal.add(split[0]);
+                String[] pifPos = split[2].split(",");
+                if (pifPos[1].charAt(0) == '0') {
+                    normal.add("identifier");
+                } else if (pifPos[1].charAt(0) == '1') {
+                    normal.add("const");
+                } else {
+                    normal.add(split[0]);
+                }
                 line = reader.readLine();
             }
             for (int i = normal.size() - 1; i >= 0; i--) {
                 wordStack.add(normal.get(i));
             }
+//            wordStack.addAll(normal);
             return wordStack;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -161,6 +169,7 @@ public class Main {
                         programScanner.writeToPIFFile("res/data/p1PIF.txt");
 
                         Stack<String> wordStack = readFirstElemFromFile("res/data/p1PIF.txt");
+                        System.out.println("wordStack: " + wordStack);
 
                         parser.parse(wordStack, parsingTable, "res/data/out2.txt");
                     } catch (ScannerException | IOException e) {

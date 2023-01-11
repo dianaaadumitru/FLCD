@@ -9,6 +9,6 @@ Func  {
 		sum = sum + arr[i];
 	}
 
-	text message = "sum of numbers is ";
+	text message = "sum ";
 	write(message, sum);
 }

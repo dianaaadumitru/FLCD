@@ -1,2 +1,2 @@
-ERROR at state 35 - before symbol arr
-Row: stateIndex= 35, action='SHIFT', shifts = [(identifier, 48)]
+ERROR at state 5 - before symbol number
+Row: stateIndex= 5, action='SHIFT', shifts = [(;, 27)]

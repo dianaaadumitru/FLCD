@@ -198,6 +198,8 @@ public class Parser {
 
         try {
             do {
+                System.out.println("input stack: " + inputStack);
+                System.out.println("current state index: " + stateIndex);
                 if (!inputStack.isEmpty()) {
                     // We keep the symbol before which an error might occur
                     onErrorSymbol = inputStack.peek();
@@ -213,8 +215,9 @@ public class Parser {
                     // Look into the parsing table at that state, and find out
                     // From it through what state, we can obtain the symbol popped from the input stack
                     String symbol = inputStack.pop();
+                    System.out.println("shifts: " + entry.shifts);
                     Pair<String, Integer> state = entry.shifts.stream().filter(it -> it.getKey().equals(symbol)).findAny().orElse(null);
-
+                    System.out.println("symbol: " + symbol + " having state: " + state);
                     if (state != null) {
                         stateIndex = state.getValue();
                         lastSymbol = symbol;
@@ -223,10 +226,10 @@ public class Parser {
                         throw new NullPointerException();
                     }
                 } else if (entry.action.equals(StateType.REDUCE)) {
-
                     List<String> reduceContent = new ArrayList<>(entry.reduceContent);
-
+                    System.out.println("im reducing");
                     while (reduceContent.contains(workStack.peek().getKey()) && !workStack.isEmpty()) {
+                        System.out.println("in while");
                         reduceContent.remove(workStack.peek().getKey());
                         workStack.pop();
                     }
