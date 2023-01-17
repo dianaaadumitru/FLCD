@@ -90,15 +90,20 @@ public class Grammar {
             }
         }
         if (!startSymbolExists)
+        {
+            System.out.println("problem with start symbol");
             return false;
+        }
 
         // key that contains more than one word not ok
         for (var key : productions.keySet()) {
             if (key.size() != 1) {
+                System.out.println("crapa la size of: " + key);
                 return false;
             }
             for (var symbol : key) {
                 if (!nonterminals.contains(symbol)) {
+                    System.out.println("simbolul: " + symbol + " din " + key + " nu e in nonterm") ;
                     return false;
                 }
             }
@@ -107,8 +112,10 @@ public class Grammar {
         for (var values : productions.values()) {
             for (var value : values) {
                 for (var symbol : value) {
-                    if (!nonterminals.contains(symbol) && !terminals.contains(symbol))
+                    if (!nonterminals.contains(symbol) && !terminals.contains(symbol)) {
+                        System.out.println("crapa la: " + values + " " + value + " " + symbol);
                         return false;
+                    }
                 }
             }
         }

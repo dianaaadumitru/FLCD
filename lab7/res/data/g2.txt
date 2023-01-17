@@ -1,38 +1,40 @@
-simpletype,arraydecl,type,declaration,cmpstmt,program,simplestmt,stmtlist,structstmt,ifstmt,whilestmt,forstmt,assignstmt,iostmt,expression,term,factor,condition,statement,outputvariables,relation
-number,array,text,const,if,else,while,for,read,write,Func,and,or,not [,],{,},==,=,<=,>=,;,:,+,*,/,-,<,>,(,), ,%,identifier
+program,cmpstmt,stmtlist,statement,simplestmt,structstmt,iostmt,assignstmt,declaration,expression,arraydecl,primitivedecl,simpletype,condition,relation,term,factor,ifstmt,whilestmt,forstmt,outputvariables
+Func,{,},;,read,write,(,),identifier,const,=,number,text,array,if,else,while,for,<,<=,==,>=,>,and,or,not [,],:,+,*,/,-,%,,
 program
-simpletype->number
-simpletype->text
-arraydecl->simpletype array identifier
-type->simpletype
-type->arraydecl
-declaration->type identifier ;
+program->Func cmpstmt
 cmpstmt->{ stmtlist }
 stmtlist->statement
-statement->simplestmt
+stmtlist->stmtlist statement
+statement->simplestmt ;
 statement->structstmt
+simplestmt->iostmt
+simplestmt->assignstmt
+simplestmt->declaration
 structstmt->cmpstmt
 structstmt->ifstmt
 structstmt->whilestmt
 structstmt->forstmt
-simplestmt->iostmt
-simplestmt->assignstmt
-assignstmt->identifier = expression
+iostmt->read ( identifier ) ;
+iostmt->write ( outputvariables ) ;
+assignstmt->identifier = expression ;
+declaration->arraydecl
+declaration->primitivedecl
+ifstmt->if ( condition ) { statement } else { statement }
+whilestmt->while ( condition ) cmpstmt
+forstmt->for ( assignstmt ; condition ; assignstmt ) cmpstmt
+outputvariables->identifier
+outputvariables->const
 expression->term
+arraydecl->simpletype array identifier
+primitivedecl->simpletype identifier ;
+simpletype->number
+simpletype->text
 term->factor
 factor->( expression )
 factor->identifier
-ifstmt->if ( condition ) { statement }
-whilestmt->while ( condition ) { statement }
-forstmt->for ( assignstmt ; condition ; assignstmt ) { statement }
-outputvariables->identifier
-outputvariables->const
-iostmt->read ( identifier )
-iostmt->write ( outputvariables )
 condition->expression relation expression
 relation-><
 relation-><=
 relation->==
 relation->>=
 relation->>
-program->Func { stmtlist }
